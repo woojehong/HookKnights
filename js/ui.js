@@ -51,11 +51,11 @@ HK.UI = (function(){
     $("#hOwned").textContent=Object.keys(s.heroes).filter(k=>s.heroes[k].owned).length;
     const pb=$("#primaryBtn");
     if(pb){ const tut=(s.tutorial_done===false);
-      if(tut){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent="🎓 튜토리얼 "+(st?st.id:""); pb.dataset.menu="tutorial"; }
+      if(tut){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent="🎓 튜토리얼: "+(st?st.title:""); pb.dataset.menu="tutorial"; }
       else { pb.textContent="⚔ 테스트 전투"; pb.dataset.menu="battle"; } }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=17"; }
+    if(act==="battle"){ location.href="battle.html?v=18"; }
     else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ toast("가챠 화면은 다음 단계에서 만들어요!"); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
@@ -80,7 +80,31 @@ HK.UI = (function(){
   }
   async function enterDirect(){ const s=await HK.Store.resume(); if(s){ openHome(); } else { show("scrAuth"); } }
   function openTut(){ renderTut(); show("scrTut"); }
-  function renderTut(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const list=$("#tutList"); list.innerHTML=""; (HK.TUTORIAL||[]).forEach((t,i)=>{ const done=(s.tutorial_stage||0)>i; const isNext=(s.tutorial_stage||0)===i; const hero=(HK.HMAP[t.hero]&&HK.HMAP[t.hero].name)||t.hero; const b=document.createElement("button"); b.className="tutStage"+(done?" done":"")+(isNext&&!s.tutorial_done?" next":""); b.innerHTML='<span class="sid">'+t.id+'</span><span class="shero">'+hero+'</span><span class="smark">'+(done?"✓":(isNext&&!s.tutorial_done?"다음":""))+'</span>'; b.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=17"; }; list.appendChild(b); }); }
+  function renderTut(){
+    const s=HK.Store.cur; if(!s){ show("scrAuth"); return; }
+    const T=HK.TUTORIAL||[]; const n=T.length;
+    const top=48, stepY=104, H=top+(n-1)*stepY+96;
+    const xs=T.map((t,i)=>i%2===0?32:68);
+    const ys=T.map((t,i)=>top+i*stepY);
+    const cleared=s.tutorial_done?n:(s.tutorial_stage||0);
+    const svg=$("#tutPath"); svg.setAttribute("viewBox","0 0 100 "+H); svg.setAttribute("preserveAspectRatio","none"); svg.style.height=H+"px"; svg.style.width="100%";
+    const allPts=xs.map((x,i)=>x+","+ys[i]).join(" ");
+    let svghtml='<polyline points="'+allPts+'" fill="none" stroke="#2a3454" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(cleared>0){ const k=Math.min(cleared, n-1); const litPts=xs.slice(0,k+1).map((x,i)=>x+","+ys[i]).join(" "); svghtml+='<polyline points="'+litPts+'" fill="none" stroke="#ffd36b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'; }
+    svg.innerHTML=svghtml;
+    const wrap=$("#tutNodes"); wrap.innerHTML=""; wrap.style.height=H+"px";
+    T.forEach((t,i)=>{
+      const done=s.tutorial_done || (s.tutorial_stage||0)>i;
+      const isNext=!s.tutorial_done && (s.tutorial_stage||0)===i;
+      const hero=(HK.HMAP[t.hero]&&HK.HMAP[t.hero].name)||t.hero;
+      const d=document.createElement("button");
+      d.className="tnode"+(done?" done":"")+(isNext?" next":"");
+      d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
+      d.innerHTML='<span class="circ">'+(done?"✓":t.id.split("-")[1])+'</span><span class="cap"><b>'+t.id+' · '+t.title+'</b><i>'+hero+'</i></span>';
+      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=18"; };
+      wrap.appendChild(d);
+    });
+  }
   async function handleTutClear(sid){ const s=await HK.Store.resume(); if(!s){ setMode("login"); show("scrAuth"); return; } const r=await HK.Store.completeTutorialStage(sid); renderHome(); show("scrHome"); if(r){ const hn=(HK.HMAP[r.heroId]&&HK.HMAP[r.heroId].name)||r.heroId; toast("🎁 "+hn+" 획득!"+(r.done?(" 튜토리얼 완료! 뽑기권 +"+r.tickets):"")); } }
   return { init, toast, openHome, renderHome };
 })();

@@ -41,6 +41,12 @@ HK.BOOK_KR  = { gray:"회색", green:"초록", red:"빨강", orange:"주황" };
 HK.GACHA = { rates:{ R:0.60, SR:0.30, SSR:0.10 }, fullHeroChance:0.10, dupBooks:10, pityCount:50 };
 
 HK.TUTORIAL = [
- {id:"0-1",hero:"gubman"},{id:"0-2",hero:"leeyonce"},{id:"0-3",hero:"dongguo"},{id:"0-4",hero:"jagoro"},{id:"0-5",hero:"bossam"},{id:"0-6",hero:"jungle"},{id:"0-7",hero:"hooje"}
+ {id:"0-1",hero:"gubman",  title:"배치와 막기"},
+ {id:"0-2",hero:"leeyonce",title:"단상과 회복"},
+ {id:"0-3",hero:"dongguo", title:"DP 운용"},
+ {id:"0-4",hero:"jagoro",  title:"원거리 사격"},
+ {id:"0-5",hero:"bossam",  title:"속성 상성"},
+ {id:"0-6",hero:"jungle",  title:"지형과 포획"},
+ {id:"0-7",hero:"hooje",   title:"졸업 전투"}
 ];
 HK.TUTORIAL_FINAL_TICKETS = 50;
