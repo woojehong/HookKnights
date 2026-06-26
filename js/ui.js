@@ -6,7 +6,6 @@ HK.UI = (function(){
 
   function show(id){ document.querySelectorAll(".screen").forEach(e=>e.classList.remove("on")); const el=$("#"+id); if(el)el.classList.add("on"); }
 
-  /* ---------- intro ---------- */
   function playIntro(){
     show("scrIntro");
     const st=$("#introStudio"), ti=$("#introTitle");
@@ -16,13 +15,12 @@ HK.UI = (function(){
     introTimer=setTimeout(showTitle, 2600);
   }
   function showTitle(){ const st=$("#introStudio"), ti=$("#introTitle"); st.classList.remove("show"); st.classList.add("hide"); setTimeout(()=>ti.classList.add("show"),650); }
-  function introTap(){
+  async function introTap(){
     const ti=$("#introTitle");
     if(!ti.classList.contains("show")){ clearTimeout(introTimer); showTitle(); return; }
-    const s=HK.Store.resume(); if(s) openHome(); else { setMode("login"); show("scrAuth"); }
+    const s=await HK.Store.resume(); if(s) openHome(); else { setMode("login"); show("scrAuth"); }
   }
 
-  /* ---------- auth ---------- */
   function setMode(m){ mode=m;
     $("#tabLogin").classList.toggle("act",m==="login");
     $("#tabSignup").classList.toggle("act",m==="signup");
@@ -30,14 +28,17 @@ HK.UI = (function(){
     $("#authSubmit").textContent = m==="login" ? "로그인" : "가입하고 시작";
     $("#authMsg").textContent="";
   }
-  function submitAuth(){
+  async function submitAuth(){
     const id=$("#fId").value, pin=$("#fPin").value, nick=$("#fNick").value;
-    const r = mode==="login" ? HK.Store.login(id,pin) : HK.Store.signup(id,pin,nick);
-    if(r.err){ $("#authMsg").textContent=r.err; return; }
-    openHome();
+    const btn=$("#authSubmit"); btn.disabled=true; const prev=btn.textContent; btn.textContent="처리 중...";
+    $("#authMsg").textContent="";
+    try {
+      const r = mode==="login" ? await HK.Store.login(id,pin) : await HK.Store.signup(id,pin,nick);
+      if(r.err){ $("#authMsg").textContent=r.err; return; }
+      openHome();
+    } finally { btn.disabled=false; btn.textContent=prev; }
   }
 
-  /* ---------- home ---------- */
   function openHome(){ renderHome(); show("scrHome"); }
   function renderHome(){
     const s=HK.Store.cur; if(!s){ setMode("login"); show("scrAuth"); return; }
