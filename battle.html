@@ -15,11 +15,11 @@
  canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;}
  #hud{flex:0 0 auto;background:#0a0e1d;border-top:1px solid #1b2138;padding:5px 8px;}
  #bar{display:flex;gap:8px;overflow-x:auto;}
- .card{flex:0 0 auto;width:150px;border-radius:12px;background:#141a30;border:2px solid #232b48;padding:7px;text-align:center;position:relative;}
+ .card{flex:0 0 auto;width:78px;border-radius:11px;background:#141a30;border:2px solid #232b48;padding:5px;text-align:center;position:relative;}
  .card.sel{border-color:#ffd36b;box-shadow:0 0 0 2px rgba(255,211,107,.35);}.card.dis{opacity:.4;}.card.out{filter:grayscale(1) brightness(.55);}
  .card.out::after{content:"출격중";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;background:#0007;border-radius:12px;}
- .card img{width:108px;height:108px;object-fit:contain;display:block;margin:0 auto;image-rendering:pixelated;}
- .card .nm{font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;}.card .cost{font-size:14px;color:#ffd36b;font-weight:600;}
+ .card img{width:70px;height:74px;object-fit:cover;object-position:50% 10%;display:block;margin:0 auto;image-rendering:pixelated;}
+ .card .nm{font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;}.card .cost{font-size:13px;color:#ffd36b;font-weight:600;}
  .card .lv{position:absolute;top:3px;left:4px;font-size:12px;font-weight:600;padding:1px 6px;border-radius:6px;background:#0009;color:#ffe08a;}
  .card.rR{border-color:#5b8cff;}
  @keyframes rdy{0%,100%{box-shadow:0 0 0 0 rgba(255,211,107,0);}50%{box-shadow:0 0 9px 2px rgba(255,211,107,.55);}}
@@ -36,6 +36,17 @@
  #toast{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:#141a30dd;border:1px solid #2a3454;padding:7px 13px;border-radius:10px;font-size:13px;display:none;z-index:6;}
 #dpFoot{font-size:13px;color:#ffd36b;margin:0 0 5px 2px;} #dpFoot b{font-size:20px;color:#ffe08a;}
 #pausemenu{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#05070fdd;z-index:7;} #pausemenu h1{font-family:'Do Hyeon';font-size:40px;} #pausemenu button{font-family:'Pretendard';font-size:16px;border:none;border-radius:12px;padding:12px 30px;font-weight:600;width:200px;} .b-resume{background:#9be29b;color:#0a0e1d;} .b-forfeit{background:#ff8a8a;color:#0a0e1d;}
+@media (pointer:coarse){
+ #topbar{height:40px;font-size:12px;} #topbar .pill{padding:3px 9px;} .nexus b{font-size:14px;} .dp b{font-size:16px;}
+ #hud{padding:4px 6px;}
+ #dpFoot{font-size:11px;margin:0 0 3px 2px;} #dpFoot b{font-size:16px;}
+ #bar{gap:6px;}
+ .card{width:54px;padding:3px;border-radius:9px;}
+ .card img{width:48px;height:60px;object-fit:cover;object-position:50% 10%;border-radius:6px;}
+ .card .nm{font-size:11px;margin-top:2px;} .card .cost{font-size:12px;}
+ .card .lv{font-size:10px;top:2px;left:3px;padding:0 4px;}
+ .card.out::after{font-size:11px;border-radius:9px;}
+}
 </style></head><body>
 <div id="app">
  <div id="topbar"><div class="pill nexus"><span>넥서스</span><b id="nexusHp">10 / 10</b></div><div class="pill dp"><span>DP</span><b id="dpVal">0</b></div><button class="pill abtn" id="autoBtn">오토 ON</button><button class="pill abtn" id="pauseBtn" style="color:#cdd;">⏸</button><div class="pill wave" id="waveInfo">웨이브</div></div>
@@ -64,18 +75,18 @@ const HMAP={};HEROES.forEach(h=>HMAP[h.id]=h);
 const MELEE_CLS={Tank:1,Melee:1,Vanguard:1};
 const SKILL_NAME={dongguo:"형들 빨리 와요!",gubman:"방패 올리기",jagoro:"속사",bossam:"눈보라",hooje:"부패의 씨앗",jungle:"죽음의 손아귀",leeyonce:"정신의 고리 토템"};
 const ENEMIES={
- slime_normal:{name:"슬라임",hp:340,atk:55,armor:25,mr:0,spd:0.85,atkInt:1.0,leak:1,sprite:"assets/enemy/slime_normal.png",sc:1.0},
- slime_fast:{name:"날쌘 슬라임",hp:200,atk:35,armor:8,mr:0,spd:1.7,atkInt:0.8,leak:2,sprite:"assets/enemy/slime_fast.png",sc:0.85},
- slime_heavy:{name:"묵직 슬라임",hp:900,atk:90,armor:70,mr:20,spd:0.6,atkInt:1.3,leak:3,sprite:"assets/enemy/slime_heavy.png",sc:1.1},
- slime_boss:{name:"보스 슬라임",hp:2600,atk:150,armor:80,mr:40,spd:0.5,atkInt:1.4,leak:5,sprite:"assets/enemy/slime_boss.png",sc:1.4},
+ slime_normal:{name:"슬라임",hp:340,atk:55,armor:25,mr:0,spd:0.85,atkInt:1.0,leak:1,sprite:"assets/Enemy/slime_normal.png",sc:1.0},
+ slime_fast:{name:"날쌘 슬라임",hp:200,atk:35,armor:8,mr:0,spd:1.7,atkInt:0.8,leak:2,sprite:"assets/Enemy/slime_fast.png",sc:0.85},
+ slime_heavy:{name:"묵직 슬라임",hp:900,atk:90,armor:70,mr:20,spd:0.6,atkInt:1.3,leak:3,sprite:"assets/Enemy/slime_heavy.png",sc:1.1},
+ slime_boss:{name:"보스 슬라임",hp:2600,atk:150,armor:80,mr:40,spd:0.5,atkInt:1.4,leak:5,sprite:"assets/Enemy/slime_boss.png",sc:1.4},
 };
 const WAVES=[{at:2,type:"slime_normal",count:3,gap:1.6},{at:10,type:"slime_fast",count:4,gap:0.8},{at:18,type:"slime_normal",count:3,gap:1.2},{at:26,type:"slime_heavy",count:2,gap:2.0},{at:34,type:"slime_fast",count:5,gap:0.6},{at:40,type:"slime_boss",count:1,gap:1}];
 /* ==== map (drawn by us; image-pixel grid, perfectly aligned) ==== */
-const GRID={ox:80,oy:116,tile:96,cols:11,rows:5,iw:1216,ih:712};
-const NEXUS=[[10,2]];
-const HIGH=(function(){const a=[];for(let c=0;c<=9;c++){a.push([c,1]);a.push([c,3]);}return a;})();
-const VOID=(function(){const a=[];for(let c=0;c<=10;c++){a.push([c,0]);a.push([c,4]);}return a;})();
-const SPAWN=[0,2];
+const GRID={ox:64,oy:64,tile:96,cols:5,rows:10,iw:608,ih:1088};
+const NEXUS=[[2,9]];
+const HIGH=(function(){const a=[];for(let r=1;r<=8;r++){a.push([1,r]);a.push([3,r]);}return a;})();
+const VOID=(function(){const a=[];for(let r=0;r<=9;r++){a.push([0,r]);a.push([4,r]);}return a;})();
+const SPAWN=[2,0];
 const START_DP=20,DP_REGEN=1.0,NEXUS_HP=10;
 function key(c,r){return c+","+r;}
 const NEXSET=new Set(NEXUS.map(p=>key(p[0],p[1]))), HIGHSET=new Set(HIGH.map(p=>key(p[0],p[1]))), VOIDSET=new Set(VOID.map(p=>key(p[0],p[1])));
@@ -106,7 +117,7 @@ let CW=0,CH=0,DPR=1,bgX=0,bgY=0,sc=1,cw=0,ch=0,portrait=false;
 const MAP=new Image();MAP.src="assets/maps/map_drawn.png";
 function resize(){const st=document.getElementById("stage");const w=st.clientWidth,h=st.clientHeight;DPR=Math.min(window.devicePixelRatio||1,2);cv.width=w*DPR;cv.height=h*DPR;CW=w;CH=h;ctx.setTransform(DPR,0,0,DPR,0,0);
  portrait=h>w*1.05;const iw=MAP.width||GRID.iw,ih=MAP.height||GRID.ih;sc=Math.min(w/iw,h/ih);bgX=(w-iw*sc)/2;bgY=(h-ih*sc)/2;cw=GRID.tile*sc;ch=GRID.tile*sc;
- document.getElementById("rotate").style.display=portrait?"flex":"none";}
+ document.getElementById("rotate").style.display="none";}
 window.addEventListener("resize",resize);
 function gx0(){return bgX+GRID.ox*sc;}function gy0(){return bgY+GRID.oy*sc;}
 function sx(c){return gx0()+(c+0.5)*cw;}function sy(r){return gy0()+(r+0.5)*ch;}
@@ -242,7 +253,7 @@ document.getElementById("upSkill").onclick=()=>{const u=G.selUnit;if(!u)return;i
 document.getElementById("autoBtn").onclick=()=>{G.globalAuto=!G.globalAuto;const b=document.getElementById("autoBtn");b.textContent="오토 "+(G.globalAuto?"ON":"OFF");b.style.color=G.globalAuto?"#9be29b":"#ff8a8a";};
 document.getElementById("pauseBtn").onclick=()=>{if(G.over)return;G.paused=true;document.getElementById("pausemenu").style.display="flex";};
 document.getElementById("resumeBtn").onclick=()=>{G.paused=false;document.getElementById("pausemenu").style.display="none";};
-document.getElementById("forfeitBtn").onclick=()=>{G.paused=false;document.getElementById("pausemenu").style.display="none";G.over=true;const o=document.getElementById("overlay");o.style.display="flex";document.getElementById("ovText").textContent="전투 포기";document.getElementById("ovText").style.color="#ff8a8a";};
+document.getElementById("forfeitBtn").onclick=()=>{location.href="index.html";};
 function showConfirm(){document.getElementById("confirmRow").style.display="flex";}
 function hideConfirm(){document.getElementById("confirmRow").style.display="none";}
 function showUnitPanel(u){const p=document.getElementById("unitpanel");p.style.display="flex";const px=sx(u.c),py=sy(u.r);p.style.left=Math.min(CW-160,Math.max(6,px-75))+"px";p.style.top=Math.max(6,py-140)+"px";document.getElementById("upName").textContent=HMAP[u.hid].name+" · "+(SKILL_NAME[HMAP[u.hid].active]||"");document.getElementById("upAuto").textContent=u.auto?"자동":"수동";}
