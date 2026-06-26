@@ -63,12 +63,12 @@
 <script>
 "use strict";
 const HEROES=[
- {id:"gubman",name:"겁만",cls:"Tank",atkType:"AD",sprite:"assets/units/Gubman.png",hp:1900,atk:80,armor:140,mr:30,range:1.6,atkInt:1.3,block:2,cost:16,spMax:24,active:"gubman"},
- {id:"dongguo",name:"동궈",cls:"Vanguard",atkType:"AD",sprite:"assets/units/Dongguo.png",hp:950,atk:70,armor:60,mr:20,range:1.6,atkInt:1.1,block:1,cost:8,spMax:12,active:"dongguo"},
+ {id:"gubman",name:"겁만",cls:"Tank",atkType:"AD",sprite:"assets/units/Gubman.png",hp:1900,atk:80,armor:140,mr:30,range:1.6,atkInt:1.3,block:2,cost:16,spMax:24,active:"gubman",dir4:1},
+ {id:"dongguo",name:"동궈",cls:"Vanguard",atkType:"AD",sprite:"assets/units/Dongguo.png",hp:950,atk:70,armor:60,mr:20,range:1.6,atkInt:1.1,block:1,cost:8,spMax:12,active:"dongguo",dir4:1},
  {id:"jungle",name:"정글",cls:"Melee",atkType:"AD",sprite:"assets/units/Jungle.png",hp:1150,atk:135,armor:70,mr:30,range:1.6,atkInt:1.2,block:1,cost:14,spMax:26,active:"jungle"},
- {id:"jagoro",name:"자고로",cls:"Ranged",atkType:"AD",sprite:"assets/units/Jagoro.png",hp:620,atk:90,armor:25,mr:0,range:3.2,atkInt:0.85,block:1,cost:13,spMax:20,active:"jagoro"},
- {id:"bossam",name:"보쌈",cls:"Ranged",atkType:"AP",sprite:"assets/units/Bossam.png",hp:560,atk:100,armor:20,mr:0,range:3.3,atkInt:1.6,block:1,cost:14,spMax:22,active:"bossam"},
- {id:"hooje",name:"후제",cls:"Ranged",atkType:"AP",sprite:"assets/units/Hooje.png",hp:540,atk:55,armor:15,mr:0,range:3.3,atkInt:1.5,block:1,cost:15,spMax:28,active:"hooje"},
+ {id:"jagoro",name:"자고로",cls:"Ranged",atkType:"AD",sprite:"assets/units/Jagoro.png",hp:620,atk:90,armor:25,mr:0,range:3.2,atkInt:0.85,block:1,cost:13,spMax:20,active:"jagoro",dir4:1},
+ {id:"bossam",name:"보쌈",cls:"Ranged",atkType:"AP",sprite:"assets/units/Bossam.png",hp:560,atk:100,armor:20,mr:0,range:3.3,atkInt:1.6,block:1,cost:14,spMax:22,active:"bossam",dir4:1},
+ {id:"hooje",name:"후제",cls:"Ranged",atkType:"AP",sprite:"assets/units/Hooje.png",hp:540,atk:55,armor:15,mr:0,range:3.3,atkInt:1.5,block:1,cost:15,spMax:28,active:"hooje",dir4:1},
  {id:"leeyonce",name:"리용세",cls:"Support",atkType:"AP",sprite:"assets/units/Leeyonce.png",hp:660,atk:60,armor:20,mr:30,range:3.1,atkInt:1.4,block:1,cost:12,spMax:24,active:"leeyonce"},
 ];
 const HMAP={};HEROES.forEach(h=>HMAP[h.id]=h);
@@ -131,14 +131,14 @@ function newGame(){G={time:0,dp:START_DP,nexus:NEXUS_HP,maxnexus:NEXUS_HP,units:
 const IMG={};let loaded=0,total=0,startedOnce=false;
 function loadImg(k,s){total++;const im=new Image();im.onload=im.onerror=()=>{loaded++;if(loaded>=total)start();};im.src=s;IMG[k]=im;}
 total++;MAP.onload=MAP.onerror=()=>{loaded++;if(loaded>=total)start();};
-HEROES.forEach(h=>loadImg(h.id,h.sprite));Object.keys(ENEMIES).forEach(k=>loadImg(k,ENEMIES[k].sprite));
+HEROES.forEach(h=>loadImg(h.id,h.sprite));HEROES.forEach(h=>{if(h.dir4){loadImg(h.id+"_b",h.sprite.replace(".png","_back.png"));loadImg(h.id+"_s",h.sprite.replace(".png","_side.png"));}});Object.keys(ENEMIES).forEach(k=>loadImg(k,ENEMIES[k].sprite));
 function buildBar(){const bar=document.getElementById("bar");bar.innerHTML="";[...HEROES].sort((a,b)=>b.cost-a.cost).forEach(h=>{const d=document.createElement("div");d.className="card rR";d.dataset.id=h.id;d.innerHTML='<div class="lv">Lv1</div><img src="'+h.sprite+'"><div class="nm">'+h.cls[0]+' '+h.name+'</div><div class="cost">★'+h.cost+'</div>';d.addEventListener("click",()=>selectHero(h.id));bar.appendChild(d);});}
 function refreshBar(){const dep=new Set(G.units.map(u=>u.hid));document.querySelectorAll(".card").forEach(d=>{const h=HMAP[d.dataset.id];const out=dep.has(h.id);const af=G.dp>=h.cost;d.classList.toggle("sel",G.selHero===h.id);d.classList.toggle("out",out);d.classList.toggle("dis",!out&&!af);d.classList.toggle("ready",!out&&af&&G.selHero!==h.id);});}
 function selectHero(id){if(G.over)return;if(G.units.some(u=>u.hid===id)){toast("이미 출격 중");return;}exitFocus();G.selHero=(G.selHero===id?null:id);G.pending=null;hideConfirm();refreshBar();}
-function canPlace(h,c,r){if(!isDeployable(c,r))return false;if(G.units.some(u=>u.c===c&&u.r===r))return false;if(isHigh(c,r)&&MELEE_CLS[h.cls])return false;return true;}
-function tryPlace(c,r){if(G.selHero==null)return;const h=HMAP[G.selHero];if(!canPlace(h,c,r)){if(isHigh(c,r)&&MELEE_CLS[h.cls])toast("근접은 고지대 불가");return;}if(G.dp<h.cost){toast("DP 부족");return;}G.pending={h,c,r};showConfirm();}
-function confirmPlace(){if(!G.pending)return;const{h,c,r}=G.pending;if(G.dp<h.cost){toast("DP 부족");return;}G.dp-=h.cost;G.units.push(makeUnit(h,c,r));G.pending=null;G.selHero=null;hideConfirm();refreshBar();}
-function makeUnit(h,c,r){return{hid:h.id,c,r,hp:h.hp,maxhp:h.hp,atk:h.atk,armor:h.armor,mr:h.mr,range:h.range,atkInt:h.atkInt,atkType:h.atkType,block:h.block,cls:h.cls,cd:0,sp:0,spMax:h.spMax,auto:true,blocking:[],buffs:[],anim:Math.random()*3,lunge:0,flash:0,face:1,onHill:isHigh(c,r)};}
+function canPlace(h,c,r){if(!isDeployable(c,r))return false;if(G.units.some(u=>u.c===c&&u.r===r))return false;const melee=!!MELEE_CLS[h.cls];if(melee&&!isGround(c,r))return false;if(!melee&&!isHigh(c,r))return false;return true;}
+function tryPlace(c,r){if(G.selHero==null)return;const h=HMAP[G.selHero];if(!canPlace(h,c,r)){const melee=!!MELEE_CLS[h.cls];if(melee&&isHigh(c,r))toast("근접·탱커는 단상 배치 불가");else if(!melee&&isGround(c,r))toast("원거리·서포터는 단상에만 배치");return;}if(G.dp<h.cost){toast("DP 부족");return;}G.pending={h,c,r,dir:null};}
+function confirmPlace(){if(!G.pending||!G.pending.dir)return;const{h,c,r,dir}=G.pending;if(G.dp<h.cost){toast("DP 부족");return;}G.dp-=h.cost;G.units.push(makeUnit(h,c,r,dir));G.pending=null;G.selHero=null;hideConfirm();refreshBar();}
+function makeUnit(h,c,r,dir){const fx=dir?dir[0]:0,fy=dir?dir[1]:1;return{hid:h.id,c,r,fx,fy,hp:h.hp,maxhp:h.hp,atk:h.atk,armor:h.armor,mr:h.mr,range:h.range,atkInt:h.atkInt,atkType:h.atkType,block:h.block,cls:h.cls,cd:0,sp:0,spMax:h.spMax,auto:true,blocking:[],buffs:[],anim:Math.random()*3,lunge:0,flash:0,face:(fx<0?1:-1),onHill:isHigh(c,r)};}
 function spawnEnemy(t){const e=ENEMIES[t];const route=ROUTE;G.enemies.push({type:t,name:e.name,hp:e.hp,maxhp:e.hp,atk:e.atk,armor:e.armor,mr:e.mr,spd:e.spd,atkInt:e.atkInt,leak:e.leak,sc:e.sc,route,pi:0,seg:0,cd:0,blockedBy:null,dots:[],flash:0,slow:0,atkAnim:0,bob:Math.random()*6});}
 function ePos(e){const a=e.route[e.pi],b=e.route[Math.min(e.pi+1,e.route.length-1)];return[a[0]+(b[0]-a[0])*e.seg,a[1]+(b[1]-a[1])*e.seg];}
 function update(dt){if(G.over)return;G.time+=dt;G.dp=Math.min(99,G.dp+DP_REGEN*dt);if(G.shake>0)G.shake=Math.max(0,G.shake-dt*28);
@@ -153,7 +153,7 @@ function update(dt){if(G.over)return;G.time+=dt;G.dp=Math.min(99,G.dp+DP_REGEN*d
  G.enemies=G.enemies.filter(e=>{if(e.hp<=0){if(e.blockedBy){const i=e.blockedBy.blocking.indexOf(e);if(i>=0)e.blockedBy.blocking.splice(i,1);}return false;}return true;});
  for(const u of G.units){u.anim+=dt;if(u.lunge>0)u.lunge-=dt*3;if(u.flash>0)u.flash-=dt;u.buffs=u.buffs.filter(b=>{b.t-=dt;if(b.t<=0){b.off&&b.off(u);return false;}return true;});
   if(u.sp<u.spMax)u.sp=Math.min(u.spMax,u.sp+dt);if(u.sp>=u.spMax&&u.auto&&G.globalAuto&&canAutoCast(u))castActive(u);u.cd-=dt;
-  if(u.cd<=0){if(u.hid==="leeyonce"){const a=lowestAlly(u);if(a&&a.hp<a.maxhp){faceTo(u,a.c);u.lunge=0.3;spawnHeal(u,a,u.atk*0.6);u.cd=u.atkInt;}else{const e=targetFor(u);if(e){attackEnemy(u,e);u.cd=u.atkInt;}}}else{const e=targetFor(u);if(e){attackEnemy(u,e);u.cd=u.atkInt;}}}}
+  if(u.cd<=0){if(u.hid==="leeyonce"){const a=lowestAlly(u);if(a&&a.hp<a.maxhp){u.lunge=0.3;spawnHeal(u,a,u.atk*0.6);u.cd=u.atkInt;}else{const e=targetFor(u);if(e){attackEnemy(u,e);u.cd=u.atkInt;}}}else{const e=targetFor(u);if(e){attackEnemy(u,e);u.cd=u.atkInt;}}}}
  for(const s of G.shots){let tx,ty,al=true;if(s.ally){if(!G.units.includes(s.ally))al=false;else{tx=sx(s.ally.c);ty=sy(s.ally.r)-ch*0.4;}}else{if(!G.enemies.includes(s.t2))al=false;else{const p=ePos(s.t2);tx=sx(p[0]);ty=sy(p[1])-ch*0.35;}}
   if(!al){s.dead=true;continue;}const dx=tx-s.x,dy=ty-s.y,d=Math.hypot(dx,dy)||1,st=s.sp*cw*dt;s.ang=Math.atan2(dy,dx);s.trail.push([s.x,s.y]);if(s.trail.length>7)s.trail.shift();
   if(d<=st){if(s.ally){s.ally.hp=Math.min(s.ally.maxhp,s.ally.hp+s.heal);spawnText(s.ally,"+"+Math.round(s.heal),"#9be29b");spawnFx({type:"hit",x:tx,y:ty,color:"#aef0c0"});}else{const e=s.t2;e.hp-=s.dmg;e.flash=0.12;spawnText(e,Math.round(s.dmg),s.crit?"#ff5a5a":"#fff",s.crit);if(s.hid==="hooje")applyDot(e,HMAP.hooje.atk*0.35);spawnFx({type:"hit",x:tx,y:ty,color:s.color});if(s.crit)G.shake=Math.max(G.shake,3);}s.dead=true;}else{s.x+=dx/d*st;s.y+=dy/d*st;}}
@@ -163,11 +163,20 @@ function update(dt){if(G.over)return;G.time+=dt;G.dp=Math.min(99,G.dp+DP_REGEN*d
  if(G.nexus<=0)endGame(false);else if(G.spawns.length===0&&G.enemies.length===0&&G.time>3)endGame(true);
  document.getElementById("nexusHp").textContent=Math.max(0,Math.round(G.nexus))+" / "+G.maxnexus;document.getElementById("dpVal").textContent=Math.floor(G.dp);document.getElementById("dpFootVal").textContent=Math.floor(G.dp);
  document.getElementById("waveInfo").textContent=G.spawns.length?("남은 적 "+G.spawns.length):(G.enemies.length?"최종 정리":"클리어!");refreshBar();}
-function targetFor(u){let b=null,bp=-1;for(const e of G.enemies){const p=ePos(e);if(Math.hypot(p[0]-u.c,p[1]-u.r)<=u.range&&e.pi>bp){bp=e.pi;b=e;}}return b;}
+function targetFor(u){let b=null,bp=-1;for(const e of G.enemies){const p=ePos(e);if(inFan(p[0]-u.c,p[1]-u.r,u.range,u.fx,u.fy)&&e.pi>bp){bp=e.pi;b=e;}}return b;}
 function lowestAlly(u){let b=null,rt=0.999;for(const a of G.units){if(Math.hypot(a.c-u.c,a.r-u.r)<=u.range){const x=a.hp/a.maxhp;if(x<rt){rt=x;b=a;}}}return b;}
 function faceTo(u,tc){u.face=(tc<u.c-0.05)?1:-1;}
+function dirSprite(hid,fx,fy){const h=HMAP[hid];if(h.dir4){if(fy<0)return{img:IMG[hid+"_b"],flip:1};if(fx!==0)return{img:IMG[hid+"_s"],flip:(fx<0?-1:1)};return{img:IMG[hid],flip:1};}return{img:IMG[hid],flip:(fx<0?1:-1)};}
+function inFan(dc,dr,R,fx,fy){if(fx===0&&fy===0)return Math.hypot(dc,dr)<=R;const fwd=dc*fx+dr*fy,lat=Math.abs(dc*(-fy)+dr*fx);return fwd>=0.5&&fwd<=R+0.4&&lat<=fwd+0.1;}
+const PDIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+function arrowPositions(c,r){const cx=sx(c),cy=sy(r),dx=cw*0.92,dy=ch*0.92;return[["up",cx,cy-dy],["down",cx,cy+dy],["left",cx-dx,cy],["right",cx+dx,cy]];}
+function pickDirHit(px,py,c,r){const rad=Math.min(cw,ch)*0.44;for(const a of arrowPositions(c,r)){if(Math.hypot(px-a[1],py-a[2])<=rad)return PDIRS[a[0]];}return null;}
+function confirmCenter(c,r){return[sx(c),sy(r)-ch*0.32];}
+function confirmHit(px,py,c,r){const ce=confirmCenter(c,r);return Math.abs(px-ce[0])<=cw*0.5&&Math.abs(py-ce[1])<=ch*0.42;}
+function drawPlaceArrows(c,r,dir){const tri={up:[[0,-1],[-1,1],[1,1]],down:[[0,1],[-1,-1],[1,-1]],left:[[-1,0],[1,-1],[1,1]],right:[[1,0],[-1,-1],[-1,1]]};const rad=Math.min(cw,ch)*0.32;for(const a of arrowPositions(c,r)){const name=a[0],ax=a[1],ay=a[2];const on=dir&&PDIRS[name][0]===dir[0]&&PDIRS[name][1]===dir[1];ctx.fillStyle=on?"rgba(255,211,107,0.95)":"rgba(20,26,48,0.85)";ctx.strokeStyle=on?"#fff":"#7fb0ff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(ax,ay,rad,0,7);ctx.fill();ctx.stroke();const t=tri[name];ctx.fillStyle=on?"#0a0e1d":"#cfe0ff";ctx.beginPath();ctx.moveTo(ax+t[0][0]*rad*0.5,ay+t[0][1]*rad*0.5);ctx.lineTo(ax+t[1][0]*rad*0.42,ay+t[1][1]*rad*0.42);ctx.lineTo(ax+t[2][0]*rad*0.42,ay+t[2][1]*rad*0.42);ctx.closePath();ctx.fill();}ctx.lineWidth=1;}
+function drawConfirmBtn(c,r){const ce=confirmCenter(c,r),w=cw*0.86,hh=ch*0.62;ctx.fillStyle="rgba(255,211,107,0.96)";rr(ce[0]-w/2,ce[1]-hh/2,w,hh,8);ctx.fill();ctx.fillStyle="#0a0e1d";ctx.font=(ch*0.34)+"px 'Do Hyeon'";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("확정",ce[0],ce[1]);ctx.textBaseline="alphabetic";}
 const SHOT_STYLE={jagoro:{color:"#ffe08a"},bossam:{color:"#bfe8ff"},hooje:{color:"#c39bff"},leeyonce:{color:"#aef0c0"}};
-function attackEnemy(u,e){const p=ePos(e);faceTo(u,p[0]);u.lunge=0.45;let am=u.atk;const cr=Math.random()<0.05;if(cr)am*=1.5;const dl=dmgAfter(am,u.atkType,e.armor,e.mr);
+function attackEnemy(u,e){const p=ePos(e);u.lunge=0.45;let am=u.atk;const cr=Math.random()<0.05;if(cr)am*=1.5;const dl=dmgAfter(am,u.atkType,e.armor,e.mr);
  if(u.range>2.0)spawnShot(u,e,dl,cr);else{e.hp-=dl;e.flash=0.12;spawnText(e,Math.round(dl),cr?"#ff5a5a":"#fff",cr);if(u.hid==="hooje")applyDot(e,u.atk*0.35);spawnFx({type:"slash",x:sx(p[0]),y:sy(p[1])-ch*0.4,color:cr?"#ff8a8a":"#fff"});if(cr)G.shake=Math.max(G.shake,3);}}
 function spawnShot(u,e,dmg,crit){const s=SHOT_STYLE[u.hid]||{color:"#ffd36b"};G.shots.push({x:sx(u.c)+u.face*cw*0.2,y:sy(u.r)-ch*0.4,t2:e,dmg,crit,hid:u.hid,color:s.color,sp:11,ang:0,trail:[]});}
 function spawnHeal(u,a,amt){G.shots.push({x:sx(u.c),y:sy(u.r)-ch*0.4,ally:a,heal:amt,color:"#aef0c0",sp:12,ang:0,trail:[]});}
@@ -205,7 +214,7 @@ function render(){ctx.clearRect(0,0,CW,CH);
  for(const it of ents){if(it.k==="u"){const u=it.u;const x=sx(u.c);const foot=sy(u.r)+ch*0.28-(u.onHill?ch*0.12:0);
    ctx.fillStyle="rgba(0,0,0,0.35)";ctx.beginPath();ctx.ellipse(x,foot,cw*0.26,ch*0.1,0,0,7);ctx.fill();
    if(u.sp>=u.spMax){const pg=0.4+0.3*Math.sin(u.anim*5);ctx.fillStyle="rgba(255,211,107,"+(pg*0.5)+")";ctx.beginPath();ctx.ellipse(x,foot,cw*0.3,ch*0.12,0,0,7);ctx.fill();}
-   drawSprite(IMG[u.hid],x+(u.lunge>0?u.face*u.lunge*cw*0.15:0),foot,ch*1.25,u.face,u.flash);
+   var usp=dirSprite(u.hid,u.fx,u.fy);drawSprite(usp.img,x+(u.lunge>0?usp.flip*u.lunge*cw*0.15:0),foot,ch*1.25,usp.flip,u.flash);
    drawBar(x,foot+3,cw*0.46,u.hp/u.maxhp,"#5fd06a");drawBar(x,foot+7,cw*0.46,u.sp>=u.spMax?1:u.sp/u.spMax,u.sp>=u.spMax?"#ffd36b":"#7fb0ff");
    if(u.sp>=u.spMax){ctx.fillStyle="#ffd36b";ctx.font=(ch*0.3)+"px 'Do Hyeon'";ctx.textAlign="center";ctx.fillText("▲",x,foot-ch*1.3+Math.sin(u.anim*6)*3);}}
   else{const e=it.e,p=it.p;const x=sx(p[0]);const lk=e.atkAnim>0?Math.sin((1-e.atkAnim/0.3)*Math.PI)*ch*0.14:0;const foot=sy(p[1])+ch*0.26-lk-Math.abs(Math.sin(e.bob))*2;
@@ -223,12 +232,12 @@ function render(){ctx.clearRect(0,0,CW,CH);
   else if(f.type==="leak"){ctx.globalAlpha=1-f.t/f.life;ctx.fillStyle="#ff5a5a";ctx.beginPath();ctx.arc(f.x,f.y,cw*0.25*(1+f.t*2),0,7);ctx.fill();ctx.globalAlpha=1;}
   else if(f.type==="bubble"){ctx.globalAlpha=Math.min(1,2-f.t);ctx.font=(ch*0.26)+"px 'Pretendard'";const ww=ctx.measureText(f.txt).width+12;ctx.fillStyle="#fff";rr(f.x-ww/2,f.y-ch*0.3,ww,ch*0.45,6);ctx.fill();ctx.fillStyle="#0a0e1d";ctx.textAlign="center";ctx.fillText(f.txt,f.x,f.y+ch*0.03);ctx.globalAlpha=1;}
   else if(f.type==="banner"){const a=Math.min(1,(f.life-f.t)*3);ctx.globalAlpha=a;ctx.font=(ch*0.42)+"px 'Do Hyeon'";ctx.textAlign="center";const yy=f.y-f.t*14;ctx.fillStyle="#0a0e1d";ctx.fillText(f.txt,f.x+1,yy+1);ctx.fillStyle="#ffe08a";ctx.fillText(f.txt,f.x,yy);ctx.globalAlpha=1;}}
- if(G.pending){const{h,c,r}=G.pending;for(let rr=0;rr<GRID.rows;rr++)for(let cc=0;cc<GRID.cols;cc++){if(Math.hypot(cc-c,rr-r)<=h.range){ctx.fillStyle="rgba(127,209,255,0.22)";ctx.fillRect(gx0()+cc*cw+2,gy0()+rr*ch+2,cw-4,ch-4);}}const x=gx0()+c*cw,y=gy0()+r*ch;ctx.fillStyle="rgba(255,211,107,0.35)";ctx.fillRect(x+1,y+1,cw-2,ch-2);ctx.globalAlpha=0.75;drawSprite(IMG[h.id],sx(c),sy(r)+ch*0.28-(isHigh(c,r)?ch*0.12:0),ch*1.25,1,0);ctx.globalAlpha=1;}
+ if(G.pending){const{h,c,r,dir}=G.pending;const tx=gx0()+c*cw,ty=gy0()+r*ch;if(dir){for(let rr2=0;rr2<GRID.rows;rr2++)for(let cc=0;cc<GRID.cols;cc++){if(inFan(cc-c,rr2-r,h.range,dir[0],dir[1])){ctx.fillStyle="rgba(127,209,255,0.24)";ctx.fillRect(gx0()+cc*cw+2,gy0()+rr2*ch+2,cw-4,ch-4);}}}ctx.fillStyle="rgba(255,211,107,0.35)";ctx.fillRect(tx+1,ty+1,cw-2,ch-2);var gsp=dirSprite(h.id,dir?dir[0]:0,dir?dir[1]:1);ctx.globalAlpha=0.8;drawSprite(gsp.img,sx(c),sy(r)+ch*0.28-(isHigh(c,r)?ch*0.12:0),ch*1.25,gsp.flip,0);ctx.globalAlpha=1;drawPlaceArrows(c,r,dir);if(dir)drawConfirmBtn(c,r);}
  ctx.textAlign="center";for(const t of G.texts){ctx.globalAlpha=1-t.t/0.9;ctx.fillStyle=t.color;ctx.font=(ch*(t.big?0.4:0.3))+"px 'Do Hyeon'";ctx.fillText(t.val,t.x,t.y);}ctx.globalAlpha=1;
  ctx.restore();
  if(G.aim){const u=G.aim.unit;ctx.fillStyle="rgba(5,7,15,0.5)";ctx.fillRect(0,0,CW,CH);
   if(u&&G.units.includes(u)){if(G.aim.shape==="diamond"){for(let r=0;r<GRID.rows;r++)for(let c=0;c<GRID.cols;c++){if(Math.abs(c-u.c)+Math.abs(r-u.r)<=7&&isField(c,r)){ctx.fillStyle="rgba(255,106,106,0.16)";ctx.fillRect(gx0()+c*cw+1,gy0()+r*ch+1,cw-2,ch-2);}}}
-   drawSprite(IMG[u.hid],sx(u.c),sy(u.r)+ch*0.28-(u.onHill?ch*0.12:0),ch*1.25,u.face,0);
+   var asp=dirSprite(u.hid,u.fx,u.fy);drawSprite(asp.img,sx(u.c),sy(u.r)+ch*0.28-(u.onHill?ch*0.12:0),ch*1.25,asp.flip,0);
    if(G.aim.shape==="diamond"){for(const e of G.enemies){if(e.type!=="slime_boss"&&dia(u,e)<=7){const p=ePos(e);ctx.strokeStyle="#ff6a6a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(sx(p[0]),sy(p[1])-ch*0.2,cw*0.26,0,7);ctx.stroke();ctx.lineWidth=1;}}}}
   ctx.fillStyle="#fff";ctx.font="22px 'Do Hyeon'";ctx.textAlign="center";ctx.fillText(G.aim.hint||"대상 선택",CW/2,32);}
 }
@@ -239,7 +248,7 @@ let last=0;
 function frame(ts){if(cv.clientWidth&&(cv.clientWidth!==CW||cv.clientHeight!==CH))resize();let dt=Math.min(0.05,(ts-last)/1000||0);last=ts;if(G){if(!G.over&&!G.paused)update(dt*(G.timeScale||1));render();}requestAnimationFrame(frame);}
 function start(){if(startedOnce)return;startedOnce=true;resize();newGame();last=performance.now();requestAnimationFrame(frame);}
 cv.addEventListener("pointerdown",ev=>{if(!G||G.over)return;const rect=cv.getBoundingClientRect();const px=(ev.clientX-rect.left)*(CW/rect.width),py=(ev.clientY-rect.top)*(CH/rect.height);const[c,r]=pickCell(px,py);
- if(G.aim){handleAim(c,r);return;}if(G.selHero!=null){if(G.pending&&G.pending.c===c&&G.pending.r===r){confirmPlace();return;}tryPlace(c,r);return;}
+ if(G.aim){handleAim(c,r);return;}if(G.selHero!=null){if(G.pending){const dh=pickDirHit(px,py,G.pending.c,G.pending.r);if(dh){G.pending.dir=dh;return;}if(G.pending.dir&&confirmHit(px,py,G.pending.c,G.pending.r)){confirmPlace();return;}if(canPlace(G.pending.h,c,r)&&!(c===G.pending.c&&r===G.pending.r)){G.pending={h:G.pending.h,c,r,dir:null};return;}if(c===G.pending.c&&r===G.pending.r)return;G.pending=null;return;}tryPlace(c,r);return;}
  const u=G.units.find(x=>x.c===c&&x.r===r);if(u){enterFocus(u);return;}exitFocus();});
 function enterFocus(u){if(!G.units.includes(u))return;G.selHero=null;G.pending=null;hideConfirm();refreshBar();G.selUnit=u;G.timeScale=0.12;const a=HMAP[u.hid].active;G.aim={unit:u,await:null,shape:(a==="jungle")?"diamond":null,hint:"스킬·자동·퇴각 (빈 곳=닫기)"};showUnitPanel(u);}
 function exitFocus(){if(!G)return;G.selUnit=null;G.aim=null;G.timeScale=1;hideUnitPanel();}

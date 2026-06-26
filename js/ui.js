@@ -51,7 +51,7 @@ HK.UI = (function(){
     $("#hOwned").textContent=Object.keys(s.heroes).filter(k=>s.heroes[k].owned).length;
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=10"; }
+    if(act==="battle"){ location.href="battle.html?v=12"; }
     else if(act==="gacha"){ toast("가챠 화면은 다음 단계에서 만들어요!"); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
     else toast("준비 중입니다");
