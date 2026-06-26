@@ -1,0 +1,112 @@
+{
+  "_schema": "HookKnights heroes v2. 수치(stats)는 추후 입력. null = TBD.",
+  "_stat_growth_rule": "영웅레벨(무한)이 HP·ATK·Armor·MR을 함께 상승. 평타/패시브는 성장불가(표시만). 액티브만 별도 레벨(최대30, 10/20/30 진화).",
+  "heroes": [
+    {
+      "id": "bossam",
+      "displayName": "보쌈",
+      "rarity": "R",
+      "class": "Ranged",
+      "concept": "와우 냉기 마법사",
+      "basic_attack": { "dmg_type": "AP", "name": null },
+      "active_skill": "act_bossam",
+      "passive_skill": "pas_bossam",
+      "skins": [
+        { "id": "dragonflight", "name": "드래곤플라이트", "sprite": "assets/units/Bossam.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "dongguo",
+      "displayName": "동궈",
+      "rarity": "R",
+      "class": "Vanguard",
+      "concept": "DP 충전형 선봉",
+      "basic_attack": { "dmg_type": "AD", "name": null },
+      "active_skill": "act_dongguo",
+      "passive_skill": "pas_dongguo",
+      "skins": [
+        { "id": "darius", "name": "다리우스", "sprite": "assets/units/Dongguo.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "gubman",
+      "displayName": "겁만",
+      "rarity": "R",
+      "class": "Tank",
+      "concept": "와우 전사형 탱커",
+      "basic_attack": { "dmg_type": "AD", "name": null },
+      "active_skill": "act_gubman",
+      "passive_skill": "pas_gubman",
+      "skins": [
+        { "id": "normal", "name": "기본", "sprite": "assets/units/Gubman.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 2, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "hooje",
+      "displayName": "후제",
+      "rarity": "R",
+      "class": "Ranged",
+      "concept": "도트 딜러 (메디브)",
+      "basic_attack": { "dmg_type": "AP", "name": null, "applies_dot": true },
+      "active_skill": "act_hooje",
+      "passive_skill": "pas_hooje",
+      "skins": [
+        { "id": "medivh", "name": "메디브", "sprite": "assets/units/Hooje.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "jagoro",
+      "displayName": "자고로",
+      "rarity": "R",
+      "class": "Ranged",
+      "concept": "와우 격냥 사냥꾼 (활). 레인지-물리는 레인지-마법보다 기본 공속이 빠름",
+      "basic_attack": { "dmg_type": "AD", "name": null },
+      "active_skill": "act_jagoro",
+      "passive_skill": "pas_jagoro",
+      "skins": [
+        { "id": "hunter", "name": "사냥꾼", "sprite": "assets/units/Jagoro.png", "default": true },
+        { "id": "paladin", "name": "성기사", "sprite": "assets/R/Jagoro - Paladin Version.png", "default": false }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "jungle",
+      "displayName": "정글",
+      "rarity": "R",
+      "class": "Melee",
+      "concept": "물리복합(Hybrid): 평타 물리 / 액티브 마법",
+      "basic_attack": { "dmg_type": "AD", "name": null },
+      "active_skill": "act_jungle",
+      "passive_skill": "pas_jungle",
+      "skins": [
+        { "id": "worgen", "name": "늑대인간", "sprite": "assets/units/Jungle.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    },
+    {
+      "id": "leeyonce",
+      "displayName": "리용세",
+      "rarity": "R",
+      "class": "Support",
+      "concept": "힐러. 범위 내 다친 아군 평타 힐(미미), 전원 풀피면 적 공격",
+      "basic_attack": { "dmg_type": "AP", "name": null, "heal_mode": true },
+      "active_skill": "act_leeyonce",
+      "passive_skill": "pas_leeyonce",
+      "skins": [
+        { "id": "normal", "name": "기본", "sprite": "assets/units/Leeyonce.png", "default": true }
+      ],
+      "stats": { "hp": null, "atk": null, "armor": null, "mr": null, "atk_spd": null, "crit": 0.05, "block": 1, "cost": null, "range": null },
+      "in_gacha_pool": true
+    }
+  ]
+}

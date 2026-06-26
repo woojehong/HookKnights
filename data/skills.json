@@ -1,0 +1,136 @@
+{
+  "_schema": "HookKnights skills v2. 액티브=성장가능(최대30, 10/20/30 진화). 패시브=고정(성장불가). 수치 null=TBD.",
+  "_buff_rules": "파티버프 패시브는 본인이 필드 배치 중일 때만 적용되는 오라. 같은 종류 중첩=합연산. 마법계열=AP데미지, 물리계열=AD데미지 기준.",
+  "active": [
+    {
+      "id": "act_bossam",
+      "name": "눈보라",
+      "owner": "bossam",
+      "mode": "zone",
+      "dmg_type": "AP",
+      "target": "area_ground",
+      "description": "지정 범위에 서리 장판 생성. 장판 위 적에게 지속(틱) 피해. 이펙트 지속 표출.",
+      "sp_cost": null, "duration": null, "tick_interval": null, "radius": null,
+      "values": { "tick_damage": null },
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "frost_zone", "color": "icy_blue" }
+    },
+    {
+      "id": "act_dongguo",
+      "name": "형들 빨리 와요!",
+      "owner": "dongguo",
+      "mode": "utility",
+      "dmg_type": "none",
+      "target": "self",
+      "description": "즉발로 DP를 한꺼번에 다량 충전. 발동 시 말풍선 '형들 빨리 와요' 표시.",
+      "sp_cost": null, "duration": 0,
+      "values": { "instant_dp": null },
+      "speech_bubble": "형들 빨리 와요",
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "gold_ring_pulse", "color": "gold_cyan" }
+    },
+    {
+      "id": "act_gubman",
+      "name": "방패 올리기",
+      "owner": "gubman",
+      "mode": "buff_self",
+      "dmg_type": "none",
+      "target": "self",
+      "description": "지속시간 동안 방어력 상승 + 블록 수 2→3. 지속 긴 편. 종료 시 블록 2 복귀.",
+      "sp_cost": null, "duration": null,
+      "values": { "armor_bonus": null, "block_override": 3 },
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "shield_aura", "color": "steel_gold" }
+    },
+    {
+      "id": "act_hooje",
+      "name": "부패의 씨앗",
+      "owner": "hooje",
+      "mode": "dot_all",
+      "dmg_type": "AP",
+      "target": "all_enemies",
+      "description": "현재 존재하는 모든 적에게 평타와 동일한 도트를 부여(살포).",
+      "sp_cost": null, "duration": null, "tick_interval": null,
+      "values": { "dot_tick_damage": null, "max_stacks": 3 },
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "corruption_spread", "color": "dark_purple_green" }
+    },
+    {
+      "id": "act_jagoro",
+      "name": "속사",
+      "owner": "jagoro",
+      "mode": "buff_self",
+      "dmg_type": "none",
+      "target": "self",
+      "description": "지속시간 동안 본인 공격속도 대폭 상승. 패시브(적자생존)와 중첩 가능.",
+      "sp_cost": null, "duration": null,
+      "values": { "atk_spd_bonus": null },
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "afterimage_rapidfire", "color": "amber_white" }
+    },
+    {
+      "id": "act_jungle",
+      "name": "죽음의 손아귀",
+      "owner": "jungle",
+      "mode": "pull",
+      "dmg_type": "AP",
+      "target": "single_enemy_in_diamond",
+      "description": "다이아몬드(맨해튼) 사거리 내에서 적 1체를 본인 위치로 끌어오며 큰 피해. 기본 대상=넥서스에 가장 가까운 적, 수동 타겟 지정 가능. 끌어온 적은 정글이 블록. 원거리 적도 끌 수 있으나 블록은 안 됨. 보스는 끌기 불가(일반몹 한정).",
+      "sp_cost": null, "duration": 0, "range_diamond": 7,
+      "values": { "pull_damage": null },
+      "boss_immune": true,
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "chain_hook", "color": "dark_red_iron" }
+    },
+    {
+      "id": "act_leeyonce",
+      "name": "정신의 고리 토템",
+      "owner": "leeyonce",
+      "mode": "heal_equalize",
+      "dmg_type": "none",
+      "target": "allies_in_range",
+      "description": "와우 정신의 고리 토템 미러링. 범위 내 아군을 에너지 사슬로 연결해 HP%를 평균으로 균등화(풀피도 평균으로 낮아질 수 있음) 후, 전원 최대HP의 10% 회복. 회복량은 리용세 AP 계수 기반.",
+      "sp_cost": null, "duration": null, "radius": null,
+      "values": { "equalize": true, "heal_percent_after": 0.10 },
+      "evolutions": { "10": null, "20": null, "30": null },
+      "fx": { "style": "spirit_link_chains", "color": "violet_teal" }
+    }
+  ],
+  "passive": [
+    {
+      "id": "pas_bossam", "name": "신비한 지능", "owner": "bossam",
+      "effect": "team_buff", "scope": "team_field_aura", "stat": "ap_damage", "condition": "always", "fixed": true,
+      "value": null, "description": "필드 배치 중, 아군 전체의 마법계열(AP) 공격력 상승."
+    },
+    {
+      "id": "pas_dongguo", "name": "부지런한 막내", "owner": "dongguo",
+      "effect": "dp_regen", "scope": "global", "condition": "always", "fixed": true,
+      "value": null, "description": "필드 배치 중, DP 회복속도 소폭 증가(미미). 액티브가 주력."
+    },
+    {
+      "id": "pas_gubman", "name": "전투의 외침", "owner": "gubman",
+      "effect": "team_buff", "scope": "team_field_aura", "stat": "ad_damage", "condition": "always", "fixed": true,
+      "value": null, "description": "필드 배치 중, 아군 전체의 물리계열(AD) 공격력 상승."
+    },
+    {
+      "id": "pas_hooje", "name": "검은 의도", "owner": "hooje",
+      "effect": "team_buff", "scope": "team_field_aura", "stat": "max_hp_percent", "condition": "always", "fixed": true,
+      "value": null, "description": "필드 배치 중, 아군 전체의 최대 HP를 % 상승."
+    },
+    {
+      "id": "pas_jagoro", "name": "적자생존", "owner": "jagoro",
+      "effect": "self_buff", "scope": "self", "stat": "atk_spd", "condition": "hp_below_50", "fixed": true,
+      "value": null, "description": "본인 HP 50% 이하일 때 공격속도 상승. 액티브 속사와 중첩."
+    },
+    {
+      "id": "pas_jungle", "name": "얼음같은 인내력", "owner": "jungle",
+      "effect": "self_buff", "scope": "self", "stat": "atk_and_armor", "condition": "hp_below_30", "fixed": true,
+      "value": null, "description": "본인 HP 30% 이하일 때 공격력 대폭 증가 + 방어력 대폭 증가."
+    },
+    {
+      "id": "pas_leeyonce", "name": "피의 욕망", "owner": "leeyonce",
+      "effect": "team_buff", "scope": "team_field_aura", "stat": "atk_spd", "condition": "always", "fixed": true,
+      "value": null, "description": "필드 배치 중, 아군 전체의 공격속도 증가."
+    }
+  ]
+}
