@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>후크나이츠 · 맵 에디터</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;font-family:sans-serif;}
+html,body{width:100%;height:100%;background:#0b0e18;color:#e8ecf7;overflow:hidden;}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;}
+#bar{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:#0a0e1d;border-bottom:1px solid #1b2138;align-items:center;}
+.pbtn{border:2px solid #2a3454;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;color:#e8ecf7;background:#141a30;}
+.pbtn.sel{border-color:#ffd36b;color:#ffd36b;}
+.pbtn .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+#save{margin-left:auto;background:#ffd36b;color:#0a0e1d;border:none;border-radius:8px;padding:8px 14px;font-weight:700;font-size:14px;}
+#stage{flex:1 1 auto;position:relative;}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;}
+#hint{position:absolute;left:8px;bottom:8px;font-size:12px;color:#9fb0d6;background:#0008;padding:4px 8px;border-radius:6px;}
+#out{position:absolute;right:8px;bottom:8px;width:40%;height:70px;display:none;font-size:10px;}
+</style></head><body>
+<div id="app">
+ <div id="bar">
+  <span style="font-size:12px;color:#9fb0d6;">칠할 종류:</span>
+  <button class="pbtn sel" data-t="ground"><span class="sw" style="background:#c8d0e0"></span>바닥</button>
+  <button class="pbtn" data-t="high"><span class="sw" style="background:#5fe0d8"></span>고지대</button>
+  <button class="pbtn" data-t="path"><span class="sw" style="background:#f5c426"></span>길</button>
+  <button class="pbtn" data-t="doorL"><span class="sw" style="background:#ff5a5a"></span>좌측문</button>
+  <button class="pbtn" data-t="doorR"><span class="sw" style="background:#ff8a3a"></span>우측문</button>
+  <button class="pbtn" data-t="nexus"><span class="sw" style="background:#5aa0ff"></span>넥서스</button>
+  <button class="pbtn" data-t="erase"><span class="sw" style="background:#444"></span>지우개</button>
+  <button class="pbtn" id="addmode">＋칸추가</button>
+  <button id="save">저장(JSON)</button>
+ </div>
+ <div id="stage"><canvas id="c"></canvas><div id="hint">타일을 탭해서 색칠 · 빈 곳은 ＋칸추가 켜고 탭 · 다 되면 저장</div><textarea id="out"></textarea></div>
+</div>
+<script>
+const TILES=[{"x":121,"y":64,"w":88,"h":71,"t":"ground"},{"x":226,"y":64,"w":88,"h":71,"t":"ground"},{"x":331,"y":64,"w":87,"h":71,"t":"ground"},{"x":437,"y":64,"w":86,"h":64,"t":"ground"},{"x":543,"y":64,"w":84,"h":71,"t":"ground"},{"x":647,"y":64,"w":82,"h":71,"t":"ground"},{"x":750,"y":64,"w":84,"h":71,"t":"ground"},{"x":852,"y":64,"w":87,"h":64,"t":"high"},{"x":957,"y":64,"w":87,"h":71,"t":"ground"},{"x":1062,"y":64,"w":87,"h":71,"t":"path"},{"x":1166,"y":64,"w":89,"h":71,"t":"path"},{"x":430,"y":138,"w":87,"h":73,"t":"ground"},{"x":858,"y":138,"w":87,"h":71,"t":"ground"},{"x":111,"y":153,"w":90,"h":75,"t":"ground"},{"x":218,"y":153,"w":90,"h":75,"t":"ground"},{"x":540,"y":153,"w":86,"h":75,"t":"high"},{"x":645,"y":153,"w":86,"h":75,"t":"ground"},{"x":750,"y":153,"w":87,"h":75,"t":"ground"},{"x":101,"y":248,"w":92,"h":76,"t":"ground"},{"x":430,"y":248,"w":88,"h":76,"t":"ground"},{"x":538,"y":248,"w":86,"h":76,"t":"ground"},{"x":644,"y":248,"w":88,"h":76,"t":"ground"},{"x":858,"y":248,"w":88,"h":76,"t":"ground"},{"x":1073,"y":248,"w":91,"h":76,"t":"ground"},{"x":1313,"y":296,"w":63,"h":99,"t":"path"},{"x":313,"y":345,"w":93,"h":76,"t":"ground"},{"x":425,"y":345,"w":90,"h":76,"t":"ground"},{"x":535,"y":345,"w":89,"h":76,"t":"ground"},{"x":645,"y":345,"w":86,"h":76,"t":"ground"},{"x":861,"y":345,"w":91,"h":76,"t":"ground"},{"x":969,"y":345,"w":92,"h":76,"t":"ground"},{"x":1079,"y":345,"w":85,"h":76,"t":"ground"},{"x":81,"y":442,"w":95,"h":78,"t":"ground"},{"x":192,"y":442,"w":96,"h":78,"t":"ground"},{"x":307,"y":442,"w":95,"h":73,"t":"ground"},{"x":421,"y":442,"w":92,"h":78,"t":"ground"},{"x":532,"y":442,"w":91,"h":78,"t":"ground"},{"x":864,"y":442,"w":91,"h":74,"t":"high"},{"x":1085,"y":442,"w":96,"h":78,"t":"high"},{"x":295,"y":525,"w":95,"h":81,"t":"ground"},{"x":869,"y":527,"w":93,"h":80,"t":"ground"},{"x":70,"y":541,"w":97,"h":79,"t":"ground"},{"x":184,"y":541,"w":97,"h":79,"t":"ground"},{"x":755,"y":541,"w":92,"h":79,"t":"ground"},{"x":60,"y":641,"w":98,"h":71,"t":"ground"},{"x":176,"y":641,"w":98,"h":71,"t":"ground"},{"x":293,"y":641,"w":99,"h":77,"t":"ground"},{"x":412,"y":641,"w":95,"h":84,"t":"ground"},{"x":527,"y":641,"w":94,"h":83,"t":"ground"},{"x":641,"y":641,"w":94,"h":83,"t":"ground"},{"x":755,"y":641,"w":94,"h":84,"t":"ground"},{"x":868,"y":641,"w":96,"h":83,"t":"ground"},{"x":983,"y":641,"w":96,"h":75,"t":"ground"},{"x":1098,"y":641,"w":99,"h":71,"t":"ground"},{"x":1214,"y":641,"w":99,"h":71,"t":"path"}];
+const NEX=[1167,263,164,163];
+const COL={ground:"#c8d0e0",high:"#5fe0d8",path:"#f5c426",doorL:"#ff5a5a",doorR:"#ff8a3a",nexus:"#5aa0ff"};
+const cv=document.getElementById("c"),ctx=cv.getContext("2d");const MAP=new Image();MAP.src="assets/maps/map_s1.png";
+let CW,CH,sc,bgX,bgY,sel="ground",addMode=false;
+function resize(){const st=document.getElementById("stage");CW=st.clientWidth;CH=st.clientHeight;const d=Math.min(window.devicePixelRatio||1,2);cv.width=CW*d;cv.height=CH*d;ctx.setTransform(d,0,0,d,0,0);const iw=MAP.width||1376,ih=MAP.height||768;sc=Math.min(CW/iw,CH/ih);bgX=(CW-iw*sc)/2;bgY=(CH-ih*sc)/2;}
+window.addEventListener("resize",resize);
+function toImg(px,py){return [(px-bgX)/sc,(py-bgY)/sc];}
+function draw(){ctx.clearRect(0,0,CW,CH);if(MAP.width)ctx.drawImage(MAP,bgX,bgY,MAP.width*sc,MAP.height*sc);
+ for(const t of TILES){const x=bgX+t.x*sc,y=bgY+t.y*sc,w=t.w*sc,h=t.h*sc;ctx.fillStyle=hexA(COL[t.t]||"#c8d0e0",0.42);ctx.fillRect(x,y,w,h);ctx.strokeStyle=COL[t.t]||"#c8d0e0";ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
+  ctx.fillStyle="#000a";ctx.fillRect(x+2,y+2,16,12);ctx.fillStyle="#fff";ctx.font="10px sans-serif";ctx.fillText(({ground:"바",high:"고",path:"길",doorL:"좌",doorR:"우",nexus:"넥"})[t.t],x+3,y+11);}
+ // nexus crystal ref
+ ctx.strokeStyle="#5aa0ff";ctx.lineWidth=2;ctx.strokeRect(bgX+NEX[0]*sc,bgY+NEX[1]*sc,NEX[2]*sc,NEX[3]*sc);
+ requestAnimationFrame(draw);}
+function hexA(h,a){const n=parseInt(h.slice(1),16);return "rgba("+(n>>16)+","+((n>>8)&255)+","+(n&255)+","+a+")";}
+cv.addEventListener("pointerdown",e=>{const r=cv.getBoundingClientRect();const px=(e.clientX-r.left)*(CW/r.width),py=(e.clientY-r.top)*(CH/r.height);const [ix,iy]=toImg(px,py);
+ let hit=-1;for(let i=0;i<TILES.length;i++){const t=TILES[i];if(ix>=t.x&&ix<=t.x+t.w&&iy>=t.y&&iy<=t.y+t.h){hit=i;break;}}
+ if(hit>=0){if(sel==="erase")TILES.splice(hit,1);else TILES[hit].t=sel;}
+ else if(addMode&&sel!=="erase"){TILES.push({x:Math.round(ix-52),y:Math.round(iy-47),w:104,h:94,t:sel});}});
+document.querySelectorAll(".pbtn[data-t]").forEach(b=>b.onclick=()=>{sel=b.dataset.t;document.querySelectorAll(".pbtn").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");});
+document.getElementById("addmode").onclick=function(){addMode=!addMode;this.style.background=addMode?"#9be29b":"#141a30";this.style.color=addMode?"#0a0e1d":"#e8ecf7";};
+document.getElementById("save").onclick=()=>{const data=JSON.stringify({iw:MAP.width,ih:MAP.height,nexusCrystal:NEX,tiles:TILES});
+ const blob=new Blob([data],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mapdata.json";a.click();
+ const o=document.getElementById("out");o.style.display="block";o.value=data;};
+MAP.onload=()=>{resize();draw();};setTimeout(()=>{resize();draw();},400);
+</script></body></html>
