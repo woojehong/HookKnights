@@ -15,8 +15,16 @@ window.HK = window.HK || {};
     if (window.firebase && firebase.initializeApp) {
       firebase.initializeApp(firebaseConfig);
       HK.db = firebase.firestore();
+      // Some mobile networks / in-app webviews block Firestore's streaming
+      // (WebChannel) transport, which makes get()/set() hang or fail even
+      // though the database is reachable. Auto-detect long-polling fixes that.
+      try {
+        HK.db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+      } catch (se) {
+        console.warn("[HK] Firestore settings 적용 실패(무시 가능):", se);
+      }
       HK.cloud = true;
-      console.log("[HK] Firebase 연결됨 (cloud save)");
+      console.log("[HK] Firebase 연결됨 (cloud save, long-polling auto-detect)");
     } else {
       HK.cloud = false;
       console.warn("[HK] Firebase SDK 미로딩 → 로컬 저장 사용");
