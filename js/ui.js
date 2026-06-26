@@ -40,6 +40,7 @@ HK.UI = (function(){
   }
 
   function openHome(){ renderHome(); show("scrHome"); }
+  async function guestStart(){ const b=document.querySelector("#guestBtn"); if(b){b.disabled=true;b.textContent="시작 중...";} const r=await HK.Store.guest(); if(r&&r.ok){ openHome(); } else if(b){ b.disabled=false; b.textContent="게스트로 시작 · 튜토리얼 스킵"; } }
   function renderHome(){
     const s=HK.Store.cur; if(!s){ setMode("login"); show("scrAuth"); return; }
     $("#hNick").textContent=s.nickname;
@@ -63,11 +64,14 @@ HK.UI = (function(){
     $("#tabLogin").onclick=()=>setMode("login");
     $("#tabSignup").onclick=()=>setMode("signup");
     $("#authSubmit").onclick=submitAuth;
+    { const g=$("#guestBtn"); if(g) g.onclick=guestStart; }
     $("#fPin").addEventListener("input",e=>{ e.target.value=e.target.value.replace(/\D/g,"").slice(0,4); });
     document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>menu(b.dataset.menu));
     setMode("login");
-    playIntro();
+    if(location.hash==="#home"){ try{history.replaceState(null,"",location.pathname);}catch(e){} enterDirect(); }
+    else playIntro();
   }
+  async function enterDirect(){ const s=await HK.Store.resume(); if(s){ openHome(); } else { show("scrAuth"); } }
   return { init, toast, openHome, renderHome };
 })();
 window.addEventListener("load", HK.UI.init);

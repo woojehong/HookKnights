@@ -14,11 +14,20 @@ HK.Store = (function(){
     return { nickname:nick, inventory:{ tickets:HK.STARTER.tickets, books:{gray:0,green:0,red:0,orange:0}, hero_books:{} },
       heroes, squad:[HK.STARTER.heroId], stage_progress:{}, gacha_pity:0, mailbox:[], created:Date.now(), last_login:Date.now() };
   }
+  function guestSave(){
+    const heroes={};
+    (HK.HEROES||[]).forEach(h=>{ heroes[h.id]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 }; });
+    const squad=(HK.HEROES||[]).slice(0,5).map(h=>h.id);
+    return { nickname:"게스트", inventory:{ tickets:50, books:{gray:0,green:0,red:0,orange:0}, hero_books:{} },
+      heroes, squad, stage_progress:{}, gacha_pity:0, mailbox:[], tutorial_done:true, guest:true,
+      created:Date.now(), last_login:Date.now() };
+  }
 
   function lAll(){ try { return JSON.parse(localStorage.getItem("hk_users")||"{}"); } catch(e){ return {}; } }
   function lPersist(a){ localStorage.setItem("hk_users", JSON.stringify(a)); }
 
   async function fetchUser(id){
+    if(id==="__guest__"){ return lAll()["__guest__"] || null; }
     if(cloud){ const d=await HK.db.collection("users").doc(id).get(); return d.exists ? d.data() : null; }
     return lAll()[id] || null;
   }
@@ -27,6 +36,7 @@ HK.Store = (function(){
     const a=lAll(); a[id]=obj; lPersist(a);
   }
   async function patchSave(id, save){
+    if(id==="__guest__"){ const a=lAll(); a["__guest__"]={ pin:"", save }; lPersist(a); return; }
     if(cloud){ await HK.db.collection("users").doc(id).set({ save }, { merge:true }); return; }
     const a=lAll(); if(a[id]){ a[id].save=save; lPersist(a); }
   }
@@ -57,6 +67,12 @@ HK.Store = (function(){
         return { ok:true, save:current };
       } catch(e){ return { err:"연결 오류: "+(e.code||e.message||e) }; }
     },
+    async guest(){
+      const save=guestSave();
+      current=save; currentId="__guest__";
+      try { localStorage.setItem(SKEY, "__guest__"); patchSave("__guest__", save); } catch(e){}
+      return { ok:true, save:current };
+    },
     async resume(){
       const id=localStorage.getItem(SKEY); if(!id) return null;
       try { const u=await fetchUser(id); if(!u) return null; current=u.save; currentId=id; return current; }
@@ -66,6 +82,7 @@ HK.Store = (function(){
     save(){ if(!currentId) return Promise.resolve(); return patchSave(currentId, current).catch(e=>console.warn("save failed", e)); },
     get cur(){ return current; },
     get id(){ return currentId; },
+    isGuest(){ return currentId==="__guest__"; },
     async deleteAccount(id){ if(cloud){ await HK.db.collection("users").doc(id).delete(); } else { const a=lAll(); delete a[id]; lPersist(a); } if(id===currentId) this.logout(); }
   };
 })();

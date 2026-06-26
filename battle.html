@@ -253,7 +253,7 @@ document.getElementById("upSkill").onclick=()=>{const u=G.selUnit;if(!u)return;i
 document.getElementById("autoBtn").onclick=()=>{G.globalAuto=!G.globalAuto;const b=document.getElementById("autoBtn");b.textContent="오토 "+(G.globalAuto?"ON":"OFF");b.style.color=G.globalAuto?"#9be29b":"#ff8a8a";};
 document.getElementById("pauseBtn").onclick=()=>{if(G.over)return;G.paused=true;document.getElementById("pausemenu").style.display="flex";};
 document.getElementById("resumeBtn").onclick=()=>{G.paused=false;document.getElementById("pausemenu").style.display="none";};
-document.getElementById("forfeitBtn").onclick=()=>{location.href="index.html";};
+document.getElementById("forfeitBtn").onclick=()=>{location.href="index.html#home";};
 function showConfirm(){document.getElementById("confirmRow").style.display="flex";}
 function hideConfirm(){document.getElementById("confirmRow").style.display="none";}
 function showUnitPanel(u){const p=document.getElementById("unitpanel");p.style.display="flex";const px=sx(u.c),py=sy(u.r);p.style.left=Math.min(CW-160,Math.max(6,px-75))+"px";p.style.top=Math.max(6,py-140)+"px";document.getElementById("upName").textContent=HMAP[u.hid].name+" · "+(SKILL_NAME[HMAP[u.hid].active]||"");document.getElementById("upAuto").textContent=u.auto?"자동":"수동";}
