@@ -88,6 +88,9 @@ const HIGH=(function(){const a=[];for(let r=1;r<=8;r++){a.push([1,r]);a.push([3,
 const VOID=(function(){const a=[];for(let r=0;r<=9;r++){a.push([0,r]);a.push([4,r]);}return a;})();
 const SPAWN=[2,0];
 const START_DP=20,DP_REGEN=1.0,NEXUS_HP=10;
+const TUTSTAGE=new URLSearchParams(location.search).get("tut");const TUT=!!TUTSTAGE;
+const TUT_HEROES={"0-1":["gubman"],"0-2":["leeyonce"],"0-3":["dongguo"],"0-4":["jagoro"],"0-5":["bossam"],"0-6":["jungle"],"0-7":["hooje"]};
+const TUT_WAVES={"0-1":[{at:2,type:"slime_normal",count:2,gap:2.4}]};
 function key(c,r){return c+","+r;}
 const NEXSET=new Set(NEXUS.map(p=>key(p[0],p[1]))), HIGHSET=new Set(HIGH.map(p=>key(p[0],p[1]))), VOIDSET=new Set(VOID.map(p=>key(p[0],p[1])));
 function isField(c,r){return c>=0&&c<GRID.cols&&r>=0&&r<GRID.rows;}
@@ -126,13 +129,13 @@ function pickCell(px,py){return [Math.floor((px-gx0())/cw),Math.floor((py-gy0())
 let G;
 function newGame(){G={time:0,dp:START_DP,nexus:NEXUS_HP,maxnexus:NEXUS_HP,units:[],enemies:[],fx:[],texts:[],shots:[],shake:0,timeScale:1,globalAuto:true,aim:null,spawns:[],over:false,win:false,paused:false,selHero:null,pending:null,selUnit:null};
  ROUTE=bfsRoute(SPAWN);
- WAVES.forEach(w=>{for(let i=0;i<w.count;i++){G.spawns.push({t:w.at+i*w.gap,type:w.type});}});G.spawns.sort((a,b)=>a.t-b.t);
+ const _ws=(TUT&&TUT_WAVES[TUTSTAGE])?TUT_WAVES[TUTSTAGE]:WAVES;_ws.forEach(w=>{for(let i=0;i<w.count;i++){G.spawns.push({t:w.at+i*w.gap,type:w.type});}});G.spawns.sort((a,b)=>a.t-b.t);
  buildBar();hideConfirm();hideUnitPanel();document.getElementById("overlay").style.display="none";document.getElementById("pausemenu").style.display="none";const ab=document.getElementById("autoBtn");ab.textContent="오토 ON";ab.style.color="#9be29b";}
 const IMG={};let loaded=0,total=0,startedOnce=false;
 function loadImg(k,s){total++;const im=new Image();im.onload=im.onerror=()=>{loaded++;if(loaded>=total)start();};im.src=s;IMG[k]=im;}
 total++;MAP.onload=MAP.onerror=()=>{loaded++;if(loaded>=total)start();};
 HEROES.forEach(h=>loadImg(h.id,h.sprite));HEROES.forEach(h=>{if(h.dir4){loadImg(h.id+"_b",h.sprite.replace(".png","_back.png"));loadImg(h.id+"_s",h.sprite.replace(".png","_side.png"));}});Object.keys(ENEMIES).forEach(k=>loadImg(k,ENEMIES[k].sprite));
-function buildBar(){const bar=document.getElementById("bar");bar.innerHTML="";[...HEROES].sort((a,b)=>b.cost-a.cost).forEach(h=>{const d=document.createElement("div");d.className="card rR";d.dataset.id=h.id;d.innerHTML='<div class="lv">Lv1</div><img src="'+h.sprite+'"><div class="nm">'+h.cls[0]+' '+h.name+'</div><div class="cost">★'+h.cost+'</div>';d.addEventListener("click",()=>selectHero(h.id));bar.appendChild(d);});}
+function buildBar(){const bar=document.getElementById("bar");bar.innerHTML="";let list=[...HEROES];if(TUT&&TUT_HEROES[TUTSTAGE]){const al=TUT_HEROES[TUTSTAGE];list=HEROES.filter(h=>al.indexOf(h.id)>=0);}list.sort((a,b)=>b.cost-a.cost).forEach(h=>{const d=document.createElement("div");d.className="card rR";d.dataset.id=h.id;d.innerHTML='<div class="lv">Lv1</div><img src="'+h.sprite+'"><div class="nm">'+h.cls[0]+' '+h.name+'</div><div class="cost">★'+h.cost+'</div>';d.addEventListener("click",()=>selectHero(h.id));bar.appendChild(d);});}
 function refreshBar(){const dep=new Set(G.units.map(u=>u.hid));document.querySelectorAll(".card").forEach(d=>{const h=HMAP[d.dataset.id];const out=dep.has(h.id);const af=G.dp>=h.cost;d.classList.toggle("sel",G.selHero===h.id);d.classList.toggle("out",out);d.classList.toggle("dis",!out&&!af);d.classList.toggle("ready",!out&&af&&G.selHero!==h.id);});}
 function selectHero(id){if(G.over)return;if(G.units.some(u=>u.hid===id)){toast("이미 출격 중");return;}exitFocus();G.selHero=(G.selHero===id?null:id);G.pending=null;hideConfirm();refreshBar();}
 function canPlace(h,c,r){if(!isDeployable(c,r))return false;if(G.units.some(u=>u.c===c&&u.r===r))return false;const melee=!!MELEE_CLS[h.cls];if(melee&&!isGround(c,r))return false;if(!melee&&!isHigh(c,r))return false;return true;}
@@ -268,6 +271,6 @@ function hideConfirm(){document.getElementById("confirmRow").style.display="none
 function showUnitPanel(u){const p=document.getElementById("unitpanel");p.style.display="flex";const px=sx(u.c),py=sy(u.r);p.style.left=Math.min(CW-160,Math.max(6,px-75))+"px";p.style.top=Math.max(6,py-140)+"px";document.getElementById("upName").textContent=HMAP[u.hid].name+" · "+(SKILL_NAME[HMAP[u.hid].active]||"");document.getElementById("upAuto").textContent=u.auto?"자동":"수동";}
 function hideUnitPanel(){const p=document.getElementById("unitpanel");if(p)p.style.display="none";}
 let tT;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.style.display="block";clearTimeout(tT);tT=setTimeout(()=>t.style.display="none",1300);}
-function endGame(win){if(G.over)return;G.over=true;G.win=win;const o=document.getElementById("overlay");o.style.display="flex";document.getElementById("ovText").textContent=win?"클리어!":"패배";document.getElementById("ovText").style.color=win?"#ffd36b":"#ff6a6a";}
+function endGame(win){if(G.over)return;G.over=true;G.win=win;const o=document.getElementById("overlay");o.style.display="flex";const ot=document.getElementById("ovText");const ob=document.getElementById("ovBtn");if(TUT){if(win){ot.textContent="튜토리얼 클리어!";ot.style.color="#ffd36b";ob.textContent="보상 받기";ob.onclick=()=>{location.href="index.html#tutclear="+TUTSTAGE;};}else{ot.textContent="다시 도전";ot.style.color="#ff6a6a";ob.textContent="다시";ob.onclick=()=>newGame();}return;}ot.textContent=win?"클리어!":"패배";ot.style.color=win?"#ffd36b":"#ff6a6a";}
 resize();setTimeout(()=>{if(!startedOnce)start();},3000);
 </script></body></html>

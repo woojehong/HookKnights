@@ -49,9 +49,14 @@ HK.UI = (function(){
     $("#hTickets").textContent=s.inventory.tickets;
     const b=s.inventory.books; $("#hBooks").textContent=(b.gray+b.green+b.red+b.orange);
     $("#hOwned").textContent=Object.keys(s.heroes).filter(k=>s.heroes[k].owned).length;
+    const pb=$("#primaryBtn");
+    if(pb){ const tut=(s.tutorial_done===false);
+      if(tut){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent="🎓 튜토리얼 "+(st?st.id:""); pb.dataset.menu="tutorial"; }
+      else { pb.textContent="⚔ 테스트 전투"; pb.dataset.menu="battle"; } }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=14"; }
+    if(act==="battle"){ location.href="battle.html?v=15"; }
+    else if(act==="tutorial"){ const s=HK.Store.cur; const st=(HK.TUTORIAL||[])[(s&&s.tutorial_stage)||0]; if(st) location.href="battle.html?tut="+st.id+"&v=15"; }
     else if(act==="gacha"){ toast("가챠 화면은 다음 단계에서 만들어요!"); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
     else toast("준비 중입니다");
@@ -68,10 +73,12 @@ HK.UI = (function(){
     $("#fPin").addEventListener("input",e=>{ e.target.value=e.target.value.replace(/\D/g,"").slice(0,4); });
     document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>menu(b.dataset.menu));
     setMode("login");
-    if(location.hash==="#home"){ try{history.replaceState(null,"",location.pathname);}catch(e){} enterDirect(); }
+    if(location.hash.indexOf("#tutclear=")===0){ const sid=location.hash.split("=")[1]; try{history.replaceState(null,"",location.pathname);}catch(e){} handleTutClear(sid); }
+    else if(location.hash==="#home"){ try{history.replaceState(null,"",location.pathname);}catch(e){} enterDirect(); }
     else playIntro();
   }
   async function enterDirect(){ const s=await HK.Store.resume(); if(s){ openHome(); } else { show("scrAuth"); } }
+  async function handleTutClear(sid){ const s=await HK.Store.resume(); if(!s){ setMode("login"); show("scrAuth"); return; } const r=await HK.Store.completeTutorialStage(sid); renderHome(); show("scrHome"); if(r){ const hn=(HK.HMAP[r.heroId]&&HK.HMAP[r.heroId].name)||r.heroId; toast("🎁 "+hn+" 획득!"+(r.done?(" 튜토리얼 완료! 뽑기권 +"+r.tickets):"")); } }
   return { init, toast, openHome, renderHome };
 })();
 window.addEventListener("load", HK.UI.init);

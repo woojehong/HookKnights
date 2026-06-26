@@ -10,9 +10,9 @@ HK.Store = (function(){
 
   function hashPin(p){ let h=2166136261>>>0; for(let i=0;i<p.length;i++){ h^=p.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(16); }
   function newSave(nick){
-    const heroes={}; heroes[HK.STARTER.heroId]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 };
-    return { nickname:nick, inventory:{ tickets:HK.STARTER.tickets, books:{gray:0,green:0,red:0,orange:0}, hero_books:{} },
-      heroes, squad:[HK.STARTER.heroId], stage_progress:{}, gacha_pity:0, mailbox:[], created:Date.now(), last_login:Date.now() };
+    // 신규 가입: 영웅 0명 / 뽑기권 0 — 튜토리얼(0-1~0-7)로 영웅을 하나씩 획득.
+    return { nickname:nick, inventory:{ tickets:0, books:{gray:0,green:0,red:0,orange:0}, hero_books:{} },
+      heroes:{}, squad:[], stage_progress:{}, gacha_pity:0, mailbox:[], tutorial_stage:0, tutorial_done:false, created:Date.now(), last_login:Date.now() };
   }
   function guestSave(){
     const heroes={};
@@ -83,6 +83,21 @@ HK.Store = (function(){
     get cur(){ return current; },
     get id(){ return currentId; },
     isGuest(){ return currentId==="__guest__"; },
+    async completeTutorialStage(stageId){
+      if(!current) return null;
+      const T=HK.TUTORIAL||[]; const idx=T.findIndex(t=>t.id===stageId);
+      if(idx<0) return null;
+      const cur=(current.tutorial_stage||0);
+      if(idx!==cur) return null; // 순서 어긋남/중복 수령 방지
+      const heroId=T[idx].hero;
+      current.heroes[heroId]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 };
+      if(current.squad.length<5 && current.squad.indexOf(heroId)<0) current.squad.push(heroId);
+      current.tutorial_stage=idx+1;
+      let done=false, tickets=0;
+      if(current.tutorial_stage>=T.length){ current.tutorial_done=true; tickets=(HK.TUTORIAL_FINAL_TICKETS||0); current.inventory.tickets+=tickets; done=true; }
+      await this.save();
+      return { heroId, done, tickets };
+    },
     async deleteAccount(id){ if(cloud){ await HK.db.collection("users").doc(id).delete(); } else { const a=lAll(); delete a[id]; lPersist(a); } if(id===currentId) this.logout(); }
   };
 })();

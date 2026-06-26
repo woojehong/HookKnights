@@ -39,3 +39,8 @@ HK.BOOK_KR  = { gray:"회색", green:"초록", red:"빨강", orange:"주황" };
 
 /* 가챠 확률 (설계서 확정) */
 HK.GACHA = { rates:{ R:0.60, SR:0.30, SSR:0.10 }, fullHeroChance:0.10, dupBooks:10, pityCount:50 };
+
+HK.TUTORIAL = [
+ {id:"0-1",hero:"gubman"},{id:"0-2",hero:"leeyonce"},{id:"0-3",hero:"dongguo"},{id:"0-4",hero:"jagoro"},{id:"0-5",hero:"bossam"},{id:"0-6",hero:"jungle"},{id:"0-7",hero:"hooje"}
+];
+HK.TUTORIAL_FINAL_TICKETS = 50;
