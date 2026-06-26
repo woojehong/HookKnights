@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Montserrat:wght@300&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
-<link href="css/app.css?v=15" rel="stylesheet" />
+<link href="css/app.css?v=17" rel="stylesheet" />
 </head>
 <body>
 <div id="app">
@@ -55,6 +55,7 @@
     </div>
     <div class="menuGrid">
       <button class="mbtn primary" id="primaryBtn" data-menu="battle">⚔ 테스트 전투</button>
+      <button class="mbtn" data-menu="tutorial"><span class="ic">🎓</span>튜토리얼</button>
       <button class="mbtn" data-menu="gacha"><span class="ic">🎲</span>가챠</button>
       <button class="mbtn" data-menu="growth"><span class="ic">📈</span>성장</button>
       <button class="mbtn" data-menu="squad"><span class="ic">🛡</span>편성</button>
@@ -63,14 +64,20 @@
     </div>
   </div>
 
+  <div id="scrTut" class="screen">
+    <div class="tutHead"><button id="tutBack" class="tutBack">‹ 홈</button><h2>튜토리얼 — 스테이지 선택</h2></div>
+    <div class="tutList" id="tutList"></div>
+    <div class="tutFoot">반복 플레이 가능 · 재클리어 보상은 없습니다</div>
+  </div>
+
   <div id="toast"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="js/data.js?v=15"></script>
-<script src="js/firebase.js?v=15"></script>
-<script src="js/store.js?v=15"></script>
-<script src="js/ui.js?v=15"></script>
+<script src="js/data.js?v=17"></script>
+<script src="js/firebase.js?v=17"></script>
+<script src="js/store.js?v=17"></script>
+<script src="js/ui.js?v=17"></script>
 </body>
 </html>

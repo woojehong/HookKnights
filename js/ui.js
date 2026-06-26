@@ -55,8 +55,8 @@ HK.UI = (function(){
       else { pb.textContent="⚔ 테스트 전투"; pb.dataset.menu="battle"; } }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=15"; }
-    else if(act==="tutorial"){ const s=HK.Store.cur; const st=(HK.TUTORIAL||[])[(s&&s.tutorial_stage)||0]; if(st) location.href="battle.html?tut="+st.id+"&v=15"; }
+    if(act==="battle"){ location.href="battle.html?v=17"; }
+    else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ toast("가챠 화면은 다음 단계에서 만들어요!"); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
     else toast("준비 중입니다");
@@ -69,6 +69,7 @@ HK.UI = (function(){
     $("#tabLogin").onclick=()=>setMode("login");
     $("#tabSignup").onclick=()=>setMode("signup");
     $("#authSubmit").onclick=submitAuth;
+    { const tb=$("#tutBack"); if(tb) tb.onclick=()=>openHome(); }
     { const g=$("#guestBtn"); if(g) g.onclick=guestStart; }
     $("#fPin").addEventListener("input",e=>{ e.target.value=e.target.value.replace(/\D/g,"").slice(0,4); });
     document.querySelectorAll("[data-menu]").forEach(b=>b.onclick=()=>menu(b.dataset.menu));
@@ -78,6 +79,8 @@ HK.UI = (function(){
     else playIntro();
   }
   async function enterDirect(){ const s=await HK.Store.resume(); if(s){ openHome(); } else { show("scrAuth"); } }
+  function openTut(){ renderTut(); show("scrTut"); }
+  function renderTut(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const list=$("#tutList"); list.innerHTML=""; (HK.TUTORIAL||[]).forEach((t,i)=>{ const done=(s.tutorial_stage||0)>i; const isNext=(s.tutorial_stage||0)===i; const hero=(HK.HMAP[t.hero]&&HK.HMAP[t.hero].name)||t.hero; const b=document.createElement("button"); b.className="tutStage"+(done?" done":"")+(isNext&&!s.tutorial_done?" next":""); b.innerHTML='<span class="sid">'+t.id+'</span><span class="shero">'+hero+'</span><span class="smark">'+(done?"✓":(isNext&&!s.tutorial_done?"다음":""))+'</span>'; b.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=17"; }; list.appendChild(b); }); }
   async function handleTutClear(sid){ const s=await HK.Store.resume(); if(!s){ setMode("login"); show("scrAuth"); return; } const r=await HK.Store.completeTutorialStage(sid); renderHome(); show("scrHome"); if(r){ const hn=(HK.HMAP[r.heroId]&&HK.HMAP[r.heroId].name)||r.heroId; toast("🎁 "+hn+" 획득!"+(r.done?(" 튜토리얼 완료! 뽑기권 +"+r.tickets):"")); } }
   return { init, toast, openHome, renderHome };
 })();
