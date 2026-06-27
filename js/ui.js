@@ -55,7 +55,7 @@ HK.UI = (function(){
       else { pb.textContent="⚔ 테스트 전투"; pb.dataset.menu="battle"; } }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=20"; }
+    if(act==="battle"){ location.href="battle.html?v=23"; }
     else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ toast("가챠 화면은 다음 단계에서 만들어요!"); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
@@ -91,8 +91,8 @@ HK.UI = (function(){
     const cleared=s.tutorial_done?n:(s.tutorial_stage||0);
     const svg=$("#tutPath"); svg.setAttribute("viewBox","0 0 100 "+H); svg.setAttribute("preserveAspectRatio","none"); svg.style.height=H+"px"; svg.style.width="100%";
     const allPts=xs.map((x,i)=>x+","+ys[i]).join(" ");
-    let svghtml='<polyline points="'+allPts+'" fill="none" stroke="#2a3454" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
-    if(cleared>0){ const k=Math.min(cleared, n-1); const litPts=xs.slice(0,k+1).map((x,i)=>x+","+ys[i]).join(" "); svghtml+='<polyline points="'+litPts+'" fill="none" stroke="#ffd36b" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'; }
+    let svghtml='<polyline points="'+allPts+'" fill="none" stroke="#20303f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(cleared>0){ const k=Math.min(cleared, n-1); const litPts=xs.slice(0,k+1).map((x,i)=>x+","+ys[i]).join(" "); svghtml+='<polyline points="'+litPts+'" fill="none" stroke="#0070d1" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'; }
     svg.innerHTML=svghtml;
     const wrap=$("#tutNodes"); wrap.innerHTML=""; wrap.style.height=H+"px";
     T.forEach((t,i)=>{
@@ -102,11 +102,16 @@ HK.UI = (function(){
       d.className="tnode"+(done?" done":"")+(isNext?" next":"");
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       d.innerHTML='<span class="circ">'+(done?"✓":t.id.split("-")[1])+'</span><span class="cap"><b>'+t.id+' · '+t.title+'</b></span>';
-      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=20"; };
+      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=23"; };
       wrap.appendChild(d);
     });
   }
-  async function handleTutClear(sid){ const s=await HK.Store.resume(); if(!s){ setMode("login"); show("scrAuth"); return; } const r=await HK.Store.completeTutorialStage(sid); openTut(); if(r){ const hn=(HK.HMAP[r.heroId]&&HK.HMAP[r.heroId].name)||r.heroId; toast("🎉 "+josaIGa(hn)+" 동료가 되었습니다!"+(r.done?(" 튜토리얼 완료! 뽑기권 +"+r.tickets):""), 3200); } }
+  function showReward(r){ const h=HK.HMAP[r.heroId]; if(!h){ return; } const rar=h.rarity||"R"; const col=(HK.RARITY_COLOR&&HK.RARITY_COLOR[rar])||"#5b8cff";
+    $("#rwImg").src=h.sprite; $("#rwName").textContent=h.name; $("#rwRole").textContent=(HK.CLASS_KR&&HK.CLASS_KR[h.cls])||h.cls;
+    const re=$("#rwRarity"); re.textContent=rar; re.style.color=col; const card=$("#rwCard"); card.style.boxShadow="0 0 26px "+col+"66"; card.style.borderColor=col;
+    $("#rwGot").innerHTML=josaIGa(h.name)+" 동료가 되었습니다!"+(r.done?('<br><span class="rwTk">튜토리얼 완료 · 뽑기권 +'+r.tickets+'</span>'):"");
+    const pop=$("#rewardPop"); pop.classList.add("on"); $("#rwOk").onclick=()=>{ pop.classList.remove("on"); }; }
+  async function handleTutClear(sid){ const s=await HK.Store.resume(); if(!s){ setMode("login"); show("scrAuth"); return; } const r=await HK.Store.completeTutorialStage(sid); renderTut(); show("scrTut"); if(r){ showReward(r); } }
   return { init, toast, openHome, renderHome };
 })();
 window.addEventListener("load", HK.UI.init);
