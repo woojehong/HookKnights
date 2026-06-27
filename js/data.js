@@ -52,7 +52,7 @@ HK.HEROES = [
     active:{ name:"발키리", type:"none", desc:"가장 약한 아군을 즉시 크게 회복(최대 50%)하고 주변 아군도 회복한다." },
     passive:{ name:"의무관", desc:"사거리 내 아군을 매초 소량 회복한다." } },
 ];
-HK.UNLOCK_BOOKS = 10;
+HK.UNLOCK_BOOKS = { R:10, SR:20, SSR:30 };
 HK.LEVEL_EXP = function(level){ return 100*level; };
 HK.HMAP = {}; HK.HEROES.forEach(h=>HK.HMAP[h.id]=h);
 

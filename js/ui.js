@@ -50,7 +50,7 @@ HK.UI = (function(){
     if(pb){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent=(s.tutorial_done===false&&st)?("🎓 튜토리얼: "+st.title):"🎓 튜토리얼"; pb.dataset.menu="tutorial"; }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=34"; }
+    if(act==="battle"){ location.href="battle.html?v=35"; }
     else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ openGacha(); }
     else if(act==="heroes"){ openHeroes(); }
@@ -112,7 +112,7 @@ HK.UI = (function(){
       d.className="tnode"+(done?" done":"")+(isNext?" next":"");
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       d.innerHTML='<span class="circ">'+(done?"✓":t.id.split("-")[1])+'</span><span class="cap"><b>'+t.id+' · '+t.title+'</b></span>';
-      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=34"; };
+      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=35"; };
       wrap.appendChild(d);
     });
   }
@@ -166,14 +166,14 @@ HK.UI = (function(){
 
   // ---------- heroes (info + growth) ----------
   function openHeroes(){ renderHeroes(); show("scrHeroes"); }
-  function renderHeroes(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const grid=$("#heroGrid"); grid.innerHTML=""; const need=HK.UNLOCK_BOOKS||10;
-    const list=(HK.HEROES||[]).map(h=>{ const hs=s.heroes[h.id]; const owned=!!(hs&&hs.owned); const books=s.inventory.hero_books[h.id]||0;
-      return { h, hs, owned, books, ready:(!owned&&books>=need), power:owned?heroPower(h,hs):-1 }; });
+  function renderHeroes(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const grid=$("#heroGrid"); grid.innerHTML="";
+    const list=(HK.HEROES||[]).map(h=>{ const hs=s.heroes[h.id]; const owned=!!(hs&&hs.owned); const books=s.inventory.hero_books[h.id]||0; const need=(HK.UNLOCK_BOOKS&&HK.UNLOCK_BOOKS[h.rarity||"R"])||10;
+      return { h, hs, owned, books, need, ready:(!owned&&books>=need), power:owned?heroPower(h,hs):-1 }; });
     list.sort((a,b)=>{ if(a.owned!==b.owned) return a.owned?-1:1; if(a.owned) return b.power-a.power; if(a.ready!==b.ready) return a.ready?-1:1; return b.books-a.books; });
     list.forEach(o=>{ const h=o.h; const d=document.createElement("button");
       d.className="heroCell rar-"+(h.rarity||"R")+(o.owned?"":" locked")+(o.ready?" ready":"");
       const upg=o.owned&&(o.hs.active_lv||1)<30&&(s.inventory.hero_books[h.id]||0)>=(o.hs.active_lv||1);
-      const sub=o.owned?('Lv '+(o.hs.level||1)+' · <span class="hcPw">⚔'+o.power+'</span>'):(o.ready?'<span class="hcReady">해금 가능!</span>':('전용책 '+Math.min(o.books,need)+'/'+need));
+      const sub=o.owned?('Lv '+(o.hs.level||1)+' · <span class="hcPw">⚔'+o.power+'</span>'):(o.ready?'<span class="hcReady">해금 가능!</span>':('전용책 '+Math.min(o.books,o.need)+'/'+o.need));
       d.innerHTML='<div class="hcRar">'+(h.rarity||"R")+'</div>'+(upg?'<div class="hcUp">스킬↑</div>':'')+'<img src="'+h.sprite+'"><div class="hcNm">'+h.name+'</div><div class="hcLv">'+sub+'</div>';
       d.onclick=()=>openHeroDetail(h.id); grid.appendChild(d); }); }
   function heroScaled(h,lv){ const f=1+0.05*((lv||1)-1), g=1+0.03*((lv||1)-1);
@@ -198,7 +198,7 @@ HK.UI = (function(){
     $("#hdSkills").innerHTML=_atk+'<div class="hdSk" id="hdSkA"><span class="t">액티브</span>'+((h.active&&h.active.name)||"-")+' <i>Lv '+aLv+'/30</i> <span class="qm">?</span></div>'+
       '<div class="hdSk" id="hdSkP"><span class="t">패시브</span>'+((h.passive&&h.passive.name)||"-")+' <span class="qm">?</span></div>';
     bindTip($("#hdSkA"),(h.active&&h.active.desc)||"설명 없음"); bindTip($("#hdSkP"),(h.passive&&h.passive.desc)||"설명 없음");
-    const need=HK.UNLOCK_BOOKS||10; const books=s.inventory.hero_books[hdHero]||0;
+    const need=(HK.UNLOCK_BOOKS&&HK.UNLOCK_BOOKS[h.rarity||"R"])||10; const books=s.inventory.hero_books[hdHero]||0;
     if(!owned){ const can=books>=need;
       $("#hdGrow").innerHTML='<div class="hdGl" style="text-align:center;margin-bottom:8px;">전용책 <b>'+Math.min(books,need)+' / '+need+'</b></div>'+
         '<div class="hdBar"><i style="width:'+Math.min(100,books/need*100)+'%"></i></div>'+
@@ -235,7 +235,7 @@ HK.UI = (function(){
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       const inner=cleared?(w.final?"☠":(w.boss?"👑":"✓")):(w.final?"☠":(w.boss?"👑":(playable?w.id.split("-")[1]:"🔒")));
       d.innerHTML='<span class="circ'+((w.boss||w.final)?" boss":"")+'">'+inner+'</span><span class="cap"><b>'+w.id+'</b></span>';
-      d.onclick=()=>{ if(!playable){ toast("이전 스테이지를 먼저 클리어하세요"); return; } location.href="battle.html?stage="+w.id+"&v=34"; };
+      d.onclick=()=>{ if(!playable){ toast("이전 스테이지를 먼저 클리어하세요"); return; } location.href="battle.html?stage="+w.id+"&v=35"; };
       wrap.appendChild(d); }); }
   function showWorldReward(r){ const list=$("#wrList"); list.innerHTML=""; $("#wrLabel").textContent=r.first?"🎉 최초 클리어 보상":"반복 클리어 보상";
     if(r.tickets){ list.innerHTML+='<div class="wrItem"><span>🎟 뽑기권</span><b>+'+r.tickets+'</b></div>'; }

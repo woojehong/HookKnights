@@ -155,7 +155,7 @@ HK.Store = (function(){
     async unlockHero(heroId){
       if(!current) return { err:"로그인 필요" };
       const hs=current.heroes[heroId]; if(hs&&hs.owned) return { err:"이미 보유 중" };
-      const need=(HK.UNLOCK_BOOKS||10); const have=current.inventory.hero_books[heroId]||0;
+      const rar=(HK.HMAP[heroId]&&HK.HMAP[heroId].rarity)||"R"; const need=(HK.UNLOCK_BOOKS&&HK.UNLOCK_BOOKS[rar])||10; const have=current.inventory.hero_books[heroId]||0;
       if(have<need) return { err:"전용북 "+need+"개 필요 ("+have+"/"+need+")" };
       current.inventory.hero_books[heroId]=have-need;
       current.heroes[heroId]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 };
