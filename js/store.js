@@ -18,7 +18,7 @@ HK.Store = (function(){
     const heroes={};
     (HK.HEROES||[]).forEach(h=>{ heroes[h.id]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 }; });
     const squad=(HK.HEROES||[]).slice(0,5).map(h=>h.id);
-    return { nickname:"게스트", inventory:{ tickets:50, books:{gray:0,green:0,red:0,orange:0}, hero_books:{} },
+    return { nickname:"게스트", inventory:{ tickets:50, books:{gray:200,green:80,red:30,orange:8}, hero_books:{} },
       heroes, squad, stage_progress:{}, gacha_pity:0, mailbox:[], tutorial_done:true, guest:true,
       created:Date.now(), last_login:Date.now() };
   }
@@ -97,6 +97,65 @@ HK.Store = (function(){
       if(current.tutorial_stage>=T.length){ current.tutorial_done=true; tickets=(HK.TUTORIAL_FINAL_TICKETS||0); current.inventory.tickets+=tickets; done=true; }
       await this.save();
       return { heroId, done, tickets };
+    },
+    async gacha(n){
+      if(!current) return { err:"로그인이 필요합니다" };
+      const inv=current.inventory; const pool=(HK.HEROES||[]).filter(h=>h.rarity==="R");
+      if(!pool.length) return { err:"가챠 풀이 비어 있습니다" };
+      const G=HK.GACHA||{ fullHeroChance:0.10, dupBooks:10, pityCount:50 };
+      let cnt=Math.min(n, inv.tickets);
+      if(cnt<=0) return { err:"뽑기권이 부족합니다" };
+      const results=[];
+      for(let i=0;i<cnt;i++){
+        inv.tickets--; current.gacha_pity=(current.gacha_pity||0)+1;
+        const hero=pool[Math.floor(Math.random()*pool.length)];
+        const full=(current.gacha_pity>=G.pityCount)||(Math.random()<G.fullHeroChance);
+        if(full){
+          current.gacha_pity=0;
+          const hs=current.heroes[hero.id];
+          if(!hs||!hs.owned){
+            current.heroes[hero.id]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 };
+            results.push({ type:"hero", heroId:hero.id });
+          } else {
+            inv.hero_books[hero.id]=(inv.hero_books[hero.id]||0)+G.dupBooks;
+            results.push({ type:"book", heroId:hero.id, qty:G.dupBooks, dupe:true });
+          }
+        } else {
+          const qty=1+(Math.random()<0.5?1:0);
+          inv.hero_books[hero.id]=(inv.hero_books[hero.id]||0)+qty;
+          results.push({ type:"book", heroId:hero.id, qty });
+        }
+      }
+      await this.save();
+      return { ok:true, results, tickets:inv.tickets, pity:current.gacha_pity };
+    },
+    async addExpBook(heroId, color){
+      if(!current) return { err:"로그인 필요" };
+      const hs=current.heroes[heroId]; if(!hs||!hs.owned) return { err:"미보유 영웅" };
+      const inv=current.inventory; if((inv.books[color]||0)<1) return { err:"경험치책이 없습니다" };
+      inv.books[color]--; const gain=(HK.BOOK_EXP&&HK.BOOK_EXP[color])||0;
+      hs.exp=(hs.exp||0)+gain; let ups=0;
+      while(hs.exp >= HK.LEVEL_EXP(hs.level||1)){ hs.exp-=HK.LEVEL_EXP(hs.level||1); hs.level=(hs.level||1)+1; ups++; }
+      await this.save(); return { ok:true, level:hs.level, exp:hs.exp, req:HK.LEVEL_EXP(hs.level), gain, ups };
+    },
+    async activeUpHero(heroId){
+      if(!current) return { err:"로그인 필요" };
+      const hs=current.heroes[heroId]; if(!hs||!hs.owned) return { err:"미보유 영웅" };
+      if((hs.active_lv||1)>=30) return { err:"액티브가 최대 레벨(30)입니다" };
+      const cost=(hs.active_lv||1);
+      const have=current.inventory.hero_books[heroId]||0;
+      if(have<cost) return { err:"전용북 "+cost+"개 필요 ("+have+"/"+cost+")" };
+      current.inventory.hero_books[heroId]=have-cost; hs.active_lv=(hs.active_lv||1)+1;
+      await this.save(); return { ok:true, active_lv:hs.active_lv, cost };
+    },
+    async unlockHero(heroId){
+      if(!current) return { err:"로그인 필요" };
+      const hs=current.heroes[heroId]; if(hs&&hs.owned) return { err:"이미 보유 중" };
+      const need=(HK.UNLOCK_BOOKS||10); const have=current.inventory.hero_books[heroId]||0;
+      if(have<need) return { err:"전용북 "+need+"개 필요 ("+have+"/"+need+")" };
+      current.inventory.hero_books[heroId]=have-need;
+      current.heroes[heroId]={ owned:true, level:1, exp:0, active_lv:1, active_exp:0 };
+      await this.save(); return { ok:true };
     },
     async deleteAccount(id){ if(cloud){ await HK.db.collection("users").doc(id).delete(); } else { const a=lAll(); delete a[id]; lPersist(a); } if(id===currentId) this.logout(); }
   };

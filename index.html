@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Montserrat:wght@300&family=IBM+Plex+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
-<link href="css/app.css?v=23" rel="stylesheet" />
+<link href="css/app.css?v=29" rel="stylesheet" />
 </head>
 <body>
 <div id="app">
@@ -48,19 +48,14 @@
       <div class="ava" id="hAva">H</div>
       <div class="who"><div class="nick" id="hNick">-</div><div class="id" id="hId">-</div></div>
     </div>
-    <div class="curbar">
-      <div class="cur"><div class="l">뽑기권</div><div class="v" id="hTickets">0</div></div>
-      <div class="cur"><div class="l">보유 영웅</div><div class="v" id="hOwned">0</div></div>
-      <div class="cur"><div class="l">경험치북</div><div class="v" id="hBooks">0</div></div>
-    </div>
-    <div class="menuGrid">
-      <button class="mbtn primary" id="primaryBtn" data-menu="battle">⚔ 테스트 전투</button>
-      <button class="mbtn" data-menu="tutorial"><span class="ic">🎓</span>튜토리얼</button>
-      <button class="mbtn" data-menu="gacha"><span class="ic">🎲</span>가챠</button>
-      <button class="mbtn" data-menu="growth"><span class="ic">📈</span>성장</button>
-      <button class="mbtn" data-menu="squad"><span class="ic">🛡</span>편성</button>
-      <button class="mbtn" data-menu="mail"><span class="ic">✉</span>우편</button>
-      <button class="mbtn ghost" data-menu="logout">로그아웃</button>
+    <div class="menuList">
+      <button class="mbtn primary" id="primaryBtn" data-menu="tutorial">🎓 튜토리얼</button>
+      <button class="mbtn row" data-menu="gacha"><span class="ic">🎲</span><span class="ml">가챠</span><span class="ch">›</span></button>
+      <button class="mbtn row" data-menu="heroes"><span class="ic">🦸</span><span class="ml">영웅 정보</span><span class="ch">›</span></button>
+      <button class="mbtn row" data-menu="squad"><span class="ic">🛡</span><span class="ml">편성</span><span class="ch">›</span></button>
+      <button class="mbtn row" data-menu="mail"><span class="ic">✉</span><span class="ml">우편</span><span class="ch">›</span></button>
+      <button class="mbtn row" data-menu="battle"><span class="ic">⚔</span><span class="ml">테스트 전투</span><span class="ch">›</span></button>
+      <button class="mbtn ghost row" data-menu="logout"><span class="ml">로그아웃</span></button>
     </div>
   </div>
 
@@ -82,14 +77,54 @@
     <button class="btn-primary" id="rwOk" style="min-width:170px;">확인</button>
   </div>
 
+  <div id="scrGacha" class="screen">
+    <div class="subHead"><button class="backBtn" data-back="home">‹ 홈</button><h2>가챠</h2><div class="tk" id="gcTickets">🎟 0</div></div>
+    <div class="gcBanner"><img src="assets/banner/banner1.png?v=29" alt="픽업 배너"><div class="gcBadge">PICK UP</div></div>
+    <div class="gcInfo">완전체 영웅 10% · 전용북 90% · 50회 천장 · 현재 R 7종</div>
+    <div class="gcTk">보유 뽑기권 <b id="gcTkBig">0</b></div>
+    <div class="gcPity">천장까지 <b id="gcPity">50</b>회</div>
+    <div class="gcBtns">
+      <button class="btn-primary" id="gc1">1회 뽑기 · 1장</button>
+      <button class="btn-primary" id="gc10">10연 뽑기 · 10장</button>
+    </div>
+  </div>
+
+  <div id="gachaPop">
+    <canvas id="gpFx"></canvas>
+    <div id="gpOrb"></div>
+    <div id="gpFlash"></div>
+    <div class="gpLabel" id="gpLabel">획득</div>
+    <div class="gpGrid" id="gpGrid"></div>
+    <button class="btn-primary" id="gpOk" style="min-width:170px;">확인</button>
+  </div>
+
+  <div id="scrHeroes" class="screen">
+    <div class="subHead"><button class="backBtn" data-back="home">‹ 홈</button><h2>영웅 정보</h2></div>
+    <div class="heroGrid" id="heroGrid"></div>
+  </div>
+
+  <div id="heroDetail">
+    <div class="hdCard">
+      <button class="hdClose" id="hdClose">✕</button>
+      <div class="hdRarity" id="hdRarity">R</div>
+      <img id="hdImg" class="hdImg" alt="">
+      <div class="hdName" id="hdName"></div>
+      <div class="hdMeta" id="hdMeta"></div>
+      <div class="hdStats" id="hdStats"></div>
+      <div class="hdSkills" id="hdSkills"></div>
+      <div class="hdGrow" id="hdGrow"></div>
+    </div>
+  </div>
+
+  <div id="tipbox"></div>
   <div id="toast"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="js/data.js?v=23"></script>
-<script src="js/firebase.js?v=23"></script>
-<script src="js/store.js?v=23"></script>
-<script src="js/ui.js?v=23"></script>
+<script src="js/data.js?v=29"></script>
+<script src="js/firebase.js?v=29"></script>
+<script src="js/store.js?v=29"></script>
+<script src="js/ui.js?v=29"></script>
 </body>
 </html>

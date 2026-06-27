@@ -69,11 +69,16 @@
 const HEROES=[
  {id:"gubman",name:"겁만",cls:"Tank",atkType:"AD",sprite:"assets/units/Gubman.png",hp:1900,atk:80,armor:140,mr:30,range:1.6,atkInt:1.3,block:2,cost:16,spMax:24,active:"gubman",dir4:1},
  {id:"dongguo",name:"동궈",cls:"Vanguard",atkType:"AD",sprite:"assets/units/Dongguo.png",hp:950,atk:70,armor:60,mr:20,range:1.6,atkInt:1.1,block:1,cost:8,spMax:12,active:"dongguo",dir4:1},
- {id:"jungle",name:"정글",cls:"Melee",atkType:"AD",sprite:"assets/units/Jungle.png",hp:1150,atk:135,armor:70,mr:30,range:1.6,atkInt:1.2,block:1,cost:14,spMax:26,active:"jungle"},
+ {id:"jungle",name:"정글",cls:"Melee",atkType:"AD",sprite:"assets/units/Jungle.png",hp:1150,atk:135,armor:70,mr:30,range:1.6,atkInt:1.2,block:1,cost:14,spMax:26,active:"jungle",dir4:1},
  {id:"jagoro",name:"자고로",cls:"Ranged",atkType:"AD",sprite:"assets/units/Jagoro.png",hp:620,atk:90,armor:25,mr:0,range:3.2,atkInt:0.85,block:1,cost:13,spMax:20,active:"jagoro",dir4:1},
  {id:"bossam",name:"보쌈",cls:"Ranged",atkType:"AP",sprite:"assets/units/Bossam.png",hp:560,atk:100,armor:20,mr:0,range:3.3,atkInt:1.6,block:1,cost:14,spMax:22,active:"bossam",dir4:1},
  {id:"hooje",name:"후제",cls:"Ranged",atkType:"AP",sprite:"assets/units/Hooje.png",hp:540,atk:55,armor:15,mr:0,range:3.3,atkInt:1.5,block:1,cost:15,spMax:28,active:"hooje",dir4:1},
- {id:"leeyonce",name:"리용세",cls:"Support",atkType:"AP",sprite:"assets/units/Leeyonce.png",hp:660,atk:60,armor:20,mr:30,range:3.1,atkInt:1.4,block:1,cost:12,spMax:24,active:"leeyonce"},
+ {id:"leeyonce",name:"리용세",cls:"Support",atkType:"AP",sprite:"assets/units/Leeyonce.png",hp:660,atk:60,armor:20,mr:30,range:3.1,atkInt:1.4,block:1,cost:12,spMax:24,active:"leeyonce",dir4:1},
+ {id:"gundam",name:"건담",cls:"Tank",atkType:"AD",sprite:"assets/units/Gundam.png",hp:2700,atk:112,armor:195,mr:45,range:1.5,atkInt:1.3,block:2,cost:18,spMax:26,active:"gubman",dir4:1},
+ {id:"arthas",name:"아서스",cls:"Melee",atkType:"AD",sprite:"assets/units/Arthas.png",hp:1650,atk:188,armor:100,mr:45,range:1.6,atkInt:1.2,block:1,cost:16,spMax:26,active:"jungle",dir4:1},
+ {id:"zenitsu",name:"젠이츠",cls:"Melee",atkType:"Hybrid",sprite:"assets/units/Zenitsu.png",hp:1450,atk:180,armor:80,mr:40,range:1.6,atkInt:1.1,block:1,cost:16,spMax:24,active:"hooje",dir4:1},
+ {id:"usopp",name:"우솝",cls:"Ranged",atkType:"AD",sprite:"assets/units/Usopp.png",hp:870,atk:126,armor:35,mr:0,range:3.3,atkInt:0.9,block:1,cost:16,spMax:22,active:"jagoro",dir4:1},
+ {id:"merci",name:"메르시",cls:"Support",atkType:"AP",sprite:"assets/units/Merci.png",hp:920,atk:85,armor:28,mr:42,range:3.1,atkInt:1.4,block:1,cost:15,spMax:24,active:"leeyonce",dir4:1},
 ];
 const HMAP={};HEROES.forEach(h=>HMAP[h.id]=h);
 const MELEE_CLS={Tank:1,Melee:1,Vanguard:1};
@@ -83,6 +88,8 @@ const ENEMIES={
  slime_fast:{name:"날쌘 슬라임",hp:200,atk:35,armor:8,mr:0,spd:1.7,atkInt:0.8,leak:2,sprite:"assets/Enemy/slime_fast.png",sc:0.85},
  slime_heavy:{name:"묵직 슬라임",hp:900,atk:90,armor:70,mr:20,spd:0.6,atkInt:1.3,leak:3,sprite:"assets/Enemy/slime_heavy.png",sc:1.1},
  slime_boss:{name:"보스 슬라임",hp:2600,atk:150,armor:80,mr:40,spd:0.5,atkInt:1.4,leak:5,sprite:"assets/Enemy/slime_boss.png",sc:1.4},
+ murloc:{name:"멀록",hp:420,atk:62,armor:30,mr:10,spd:0.9,atkInt:1.0,leak:1,sprite:"assets/Enemy/murloc.png",sc:1.0},
+ murloc_king:{name:"멀록 왕",hp:5200,atk:185,armor:95,mr:55,spd:0.45,atkInt:1.3,leak:5,sprite:"assets/Enemy/murloc_king.png",sc:1.5},
 };
 /* ==== map (drawn by us; image-pixel grid, perfectly aligned) ==== */
 const TUTSTAGE=new URLSearchParams(location.search).get("tut");const TUT=!!TUTSTAGE;
