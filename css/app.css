@@ -288,3 +288,8 @@ html,body{ width:100%; height:100%; overflow:hidden; background:var(--canvas); c
 .fanMini i{ width:10px; height:10px; border-radius:2px; background:#0a0e16; display:block; }
 .fanMini i.on{ background:rgba(127,209,255,.75); }
 .fanMini i.u{ background:var(--gold); }
+
+/* active upgrade buttons (single + max) */
+.hdActBtns{ display:flex; gap:8px; }
+.btn-mini.sec{ background:transparent; border:1px solid var(--hairline); color:var(--on-dark); }
+.btn-mini.sec:hover{ border-color:var(--on-mute); }

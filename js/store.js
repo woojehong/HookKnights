@@ -144,6 +144,14 @@ HK.Store = (function(){
       current.inventory.hero_books[heroId]=have-cost; hs.active_lv=(hs.active_lv||1)+1;
       await this.save(); return { ok:true, active_lv:hs.active_lv, cost };
     },
+    async activeUpMaxHero(heroId){
+      if(!current) return { err:"로그인 필요" };
+      const hs=current.heroes[heroId]; if(!hs||!hs.owned) return { err:"미보유 영웅" };
+      let gained=0, spent=0;
+      while((hs.active_lv||1)<30){ const cost=(hs.active_lv||1); const have=current.inventory.hero_books[heroId]||0; if(have<cost) break; current.inventory.hero_books[heroId]=have-cost; hs.active_lv=(hs.active_lv||1)+1; gained++; spent+=cost; }
+      if(gained===0) return { err:"전용북이 부족합니다" };
+      await this.save(); return { ok:true, gained, active_lv:hs.active_lv, spent };
+    },
     async unlockHero(heroId){
       if(!current) return { err:"로그인 필요" };
       const hs=current.heroes[heroId]; if(hs&&hs.owned) return { err:"이미 보유 중" };
