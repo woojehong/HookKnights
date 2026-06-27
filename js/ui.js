@@ -50,10 +50,11 @@ HK.UI = (function(){
     if(pb){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent=(s.tutorial_done===false&&st)?("🎓 튜토리얼: "+st.title):"🎓 튜토리얼"; pb.dataset.menu="tutorial"; }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=29"; }
+    if(act==="battle"){ location.href="battle.html?v=31"; }
     else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ openGacha(); }
     else if(act==="heroes"){ openHeroes(); }
+    else if(act==="world"){ openWorld(); }
     else if(act==="logout"){ HK.Store.logout(); $("#fId").value=""; $("#fPin").value=""; $("#fNick").value=""; setMode("login"); playIntro(); }
     else toast("준비 중입니다");
   }
@@ -76,8 +77,15 @@ HK.UI = (function(){
     { const a=$("#gc10"); if(a) a.onclick=()=>doPull(10); }
     { const a=$("#gpOk"); if(a) a.onclick=()=>$("#gachaPop").classList.remove("on"); }
     { const a=$("#hdClose"); if(a) a.onclick=()=>$("#heroDetail").classList.remove("on"); }
+    { const o=$("#heroDetail"); if(o) o.addEventListener("click",e=>{ if(e.target===o) o.classList.remove("on"); }); }
     setMode("login");
-    if(location.hash==="#tutmap"){ try{history.replaceState(null,"",location.pathname);}catch(e){} (async()=>{ const s=await HK.Store.resume(); if(s){ openTut(); } else { show("scrAuth"); } })(); }
+    { const wo=$("#wrOk"); if(wo) wo.onclick=()=>$("#worldRwPop").classList.remove("on"); }
+    { const wp=$("#worldRwPop"); if(wp) wp.addEventListener("click",e=>{ if(e.target===wp) wp.classList.remove("on"); }); }
+    { const pb=$("#gcPityBtn"); if(pb) pb.onclick=openPitySelect; }
+    { const pc2=$("#psClose"); if(pc2) pc2.onclick=()=>$("#pitySelect").classList.remove("on"); }
+    if(location.hash.indexOf("#worldclear=")===0){ const sid=location.hash.split("=")[1]; try{history.replaceState(null,"",location.pathname);}catch(e){} handleWorldClear(sid); }
+    else if(location.hash==="#worldmap"){ try{history.replaceState(null,"",location.pathname);}catch(e){} (async()=>{ const s=await HK.Store.resume(); if(s){ openWorld(); } else { show("scrAuth"); } })(); }
+    else if(location.hash==="#tutmap"){ try{history.replaceState(null,"",location.pathname);}catch(e){} (async()=>{ const s=await HK.Store.resume(); if(s){ openTut(); } else { show("scrAuth"); } })(); }
     else if(location.hash.indexOf("#tutclear=")===0){ const sid=location.hash.split("=")[1]; try{history.replaceState(null,"",location.pathname);}catch(e){} handleTutClear(sid); }
     else if(location.hash==="#home"){ try{history.replaceState(null,"",location.pathname);}catch(e){} enterDirect(); }
     else playIntro();
@@ -104,7 +112,7 @@ HK.UI = (function(){
       d.className="tnode"+(done?" done":"")+(isNext?" next":"");
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       d.innerHTML='<span class="circ">'+(done?"✓":t.id.split("-")[1])+'</span><span class="cap"><b>'+t.id+' · '+t.title+'</b></span>';
-      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=29"; };
+      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=31"; };
       wrap.appendChild(d);
     });
   }
@@ -119,6 +127,8 @@ HK.UI = (function(){
   function renderGacha(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const G=HK.GACHA||{pityCount:50}; const pc=G.pityCount||50;
     $("#gcTickets").textContent="🎟 "+s.inventory.tickets;
     const big=$("#gcTkBig"); if(big) big.textContent=s.inventory.tickets;
+    const avail=Math.floor((s.gacha_pity||0)/pc)-(s.gacha_pity_claimed||0);
+    const pb=$("#gcPityBtn"); if(pb){ if(avail>0){ pb.style.display=""; $("#gcPityN").textContent=avail; } else pb.style.display="none"; }
     $("#gcPity").textContent=(pc-((s.gacha_pity||0)%pc)); }
   let gachaBusy=false;
   async function doPull(n){ if(gachaBusy) return; gachaBusy=true; const r=await HK.Store.gacha(n); gachaBusy=false;
@@ -131,24 +141,27 @@ HK.UI = (function(){
       for(const p of ps){ if(p.life<=0)continue; alive=true; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=0.12*dt; p.vx*=0.98; p.life-=0.018*dt; ctx.globalAlpha=Math.max(0,p.life); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,7); ctx.fill(); }
       ctx.globalAlpha=1; if(alive) requestAnimationFrame(fr); else ctx.clearRect(0,0,w,hh); }
     requestAnimationFrame(fr); }
-  function showPulls(results){ const pop=$("#gachaPop"); pop.classList.add("on");
+  function showPulls(results){ const pop=$("#gachaPop");
     const orb=$("#gpOrb"), flash=$("#gpFlash"), grid=$("#gpGrid"), ok=$("#gpOk"), label=$("#gpLabel");
-    grid.innerHTML=""; grid.classList.remove("show"); ok.style.display="none"; label.style.display="none";
-    const hasNew=results.some(r=>r.type==="hero"); const tone=hasNew?"gold":"blue"; const pcol=hasNew?"#ffce21":"#53b1ff";
+    pop.classList.add("on"); grid.innerHTML=""; grid.classList.remove("show"); ok.style.display="none"; label.style.display="none";
+    const best=results.some(r=>r.rarity==="SSR")?"SSR":results.some(r=>r.rarity==="SR")?"SR":"R";
+    const tone=best==="R"?"blue":"gold"; const pcol=best==="SSR"?"#ffd36b":best==="SR"?"#c08bff":"#53b1ff";
     orb.className="charge "+tone; orb.style.display="block";
     let done=false;
-    const reveal=()=>{ if(done) return; done=true; orb.style.display="none";
+    const reveal=()=>{ if(done)return; done=true; orb.style.display="none";
       flash.classList.add("go"); setTimeout(()=>flash.classList.remove("go"),340);
-      pop.classList.add("shake"); setTimeout(()=>pop.classList.remove("shake"),420); gpParticles(pcol);
-      results.forEach((it,i)=>{ const h=HK.HMAP[it.heroId]; const col=(HK.RARITY_COLOR&&HK.RARITY_COLOR[h.rarity||"R"])||"#5b8cff";
-        const d=document.createElement("div"); d.className="gpItem"+(it.type==="hero"?" isHero":""); d.style.animationDelay=(i*0.08)+"s";
-        if(it.type==="hero"){ d.style.borderColor=col; d.style.boxShadow="0 0 18px "+col+"88"; d.innerHTML='<div class="gpNew">NEW</div><img src="'+h.sprite+'"><div class="gpNm">'+h.name+'</div>'; }
-        else { d.innerHTML='<div class="gpBookIc">📕</div><div class="gpNm">'+h.name+' 전용북</div><div class="gpQty">×'+it.qty+(it.dupe?' <span class="gpDupe">중복</span>':'')+'</div>'; }
+      pop.classList.add("shake"); setTimeout(()=>pop.classList.remove("shake"),460); gpParticles(pcol);
+      if(best!=="R"){ setTimeout(()=>gpParticles(pcol),180); }
+      results.forEach((it,i)=>{ const hh=HK.HMAP[it.heroId]; const rr=it.rarity||(hh&&hh.rarity)||"R"; const col=(HK.RARITY_COLOR&&HK.RARITY_COLOR[rr])||"#5b8cff";
+        const d=document.createElement("div"); d.className="gpItem rar-"+rr+((it.type!=="book")?" big":""); d.style.animationDelay=(i*0.09)+"s"; d.style.setProperty("--rc",col);
+        if(it.type==="hero"){ d.innerHTML='<div class="gpRays"></div><div class="gpNew">NEW</div><img src="'+hh.sprite+'"><div class="gpNm">'+hh.name+'</div>'; }
+        else if(it.type==="dupe"){ d.innerHTML='<div class="gpRays"></div><div class="gpDup">전용북 +'+it.qty+'</div><img src="'+hh.sprite+'"><div class="gpNm">'+hh.name+'</div>'; }
+        else { d.innerHTML='<div class="gpBookIc">📕</div><div class="gpNm">'+hh.name+' 전용북</div><div class="gpQty">×'+it.qty+'</div>'; }
         grid.appendChild(d); });
       grid.classList.add("show"); label.style.display="block";
-      setTimeout(()=>{ ok.style.display=""; }, 260+results.length*80); };
+      setTimeout(()=>{ ok.style.display=""; }, 260+results.length*90); };
     clearTimeout(orbTimer); orbTimer=setTimeout(reveal, 1300);
-    pop.onclick=(e)=>{ if(e.target===ok) return; if(!done) reveal(); };
+    pop.onclick=(e)=>{ if(e.target===ok)return; if(!done){ reveal(); return; } if(e.target===pop||e.target===grid||e.target===label){ pop.classList.remove("on"); } };
   }
 
   // ---------- heroes (info + growth) ----------
@@ -159,8 +172,9 @@ HK.UI = (function(){
     list.sort((a,b)=>{ if(a.owned!==b.owned) return a.owned?-1:1; if(a.owned) return b.power-a.power; if(a.ready!==b.ready) return a.ready?-1:1; return b.books-a.books; });
     list.forEach(o=>{ const h=o.h; const d=document.createElement("button");
       d.className="heroCell rar-"+(h.rarity||"R")+(o.owned?"":" locked")+(o.ready?" ready":"");
+      const upg=o.owned&&(o.hs.active_lv||1)<30&&(s.inventory.hero_books[h.id]||0)>=(o.hs.active_lv||1);
       const sub=o.owned?('Lv '+(o.hs.level||1)+' · <span class="hcPw">⚔'+o.power+'</span>'):(o.ready?'<span class="hcReady">해금 가능!</span>':('전용책 '+Math.min(o.books,need)+'/'+need));
-      d.innerHTML='<div class="hcRar">'+(h.rarity||"R")+'</div><img src="'+h.sprite+'"><div class="hcNm">'+h.name+'</div><div class="hcLv">'+sub+'</div>';
+      d.innerHTML='<div class="hcRar">'+(h.rarity||"R")+'</div>'+(upg?'<div class="hcUp">스킬↑</div>':'')+'<img src="'+h.sprite+'"><div class="hcNm">'+h.name+'</div><div class="hcLv">'+sub+'</div>';
       d.onclick=()=>openHeroDetail(h.id); grid.appendChild(d); }); }
   function heroScaled(h,lv){ const f=1+0.05*((lv||1)-1), g=1+0.03*((lv||1)-1);
     return { hp:Math.round(h.hp*f), atk:Math.round(h.atk*f), armor:Math.round(h.armor*g), mr:Math.round(h.mr*g) }; }
@@ -197,12 +211,44 @@ HK.UI = (function(){
         '<div class="hdBar exp"><i style="width:'+Math.min(100,exp/req*100)+'%"></i></div><div class="hdExp">'+exp+' / '+req+' EXP</div>'+
         '<div class="bookRow">'+bb("gray","회")+bb("green","초")+bb("red","빨")+bb("orange","주")+'</div></div>'+
       '<div class="hdGrowSec"><div class="hdGl">액티브 <b>'+aLv+'</b>/30 <span class="qm" id="hdActPrev">미리보기</span></div>'+
-        '<div class="hdGrowRow"><div class="hdBooksMini">전용북 '+books+'개</div><button class="btn-mini" id="hdAct" '+(aLv>=30?'disabled':'')+'>강화 · 전용북 '+aLv+'</button></div></div>';
+        '<div class="hdGrowRow"><div class="hdBooksMini">전용북 '+books+'개</div><button class="btn-mini'+((aLv<30&&books>=aLv)?' can':'')+'" id="hdAct" '+(aLv>=30?'disabled':'')+'>강화 · 전용북 '+aLv+'</button></div></div>';
     bindTip($("#hdLvPrev"),"Lv "+lv+" → "+(lv+1)+"<br>HP "+st.hp+" → "+nx.hp+"<br>공격 "+st.atk+" → "+nx.atk+"<br>방어 "+st.armor+" → "+nx.armor+"<br>마저 "+st.mr+" → "+nx.mr);
     bindTip($("#hdActPrev"), aLv>=30?"최대 레벨(30)":("Lv "+aLv+" → "+(aLv+1)+"<br>스킬 위력 약 +5%<br>필요 전용북 "+aLv+"개 (보유 "+books+")"));
     document.querySelectorAll("#hdGrow .bookBtn").forEach(b=>b.onclick=async()=>{ const r=await HK.Store.addExpBook(hdHero,b.dataset.bc); if(r.err) toast(r.err); else { if(r.ups>0) toast("Lv "+r.level+" 달성!"); renderHeroDetail(); renderHeroes(); } });
     const ab=$("#hdAct"); if(ab) ab.onclick=async()=>{ const r=await HK.Store.activeUpHero(hdHero); if(r.err) toast(r.err); else { toast("액티브 Lv "+r.active_lv); renderHeroDetail(); } };
   }
+  // ---------- world 1 ----------
+  function openWorld(){ renderWorld(); show("scrWorld"); }
+  function renderWorld(){ const s=HK.Store.cur; if(!s){ show("scrAuth"); return; } const W=HK.WORLD1||[]; const n=W.length; const prog=s.stage_progress||{};
+    const top=46, stepY=100, H=top+(n-1)*stepY+92; const xs=W.map((w,i)=>i%2===0?30:70); const ys=W.map((w,i)=>top+i*stepY);
+    const svg=$("#wPath"); svg.setAttribute("viewBox","0 0 100 "+H); svg.setAttribute("preserveAspectRatio","none"); svg.style.height=H+"px"; svg.style.width="100%";
+    const allPts=xs.map((x,i)=>x+","+ys[i]).join(" ");
+    let cc=0; for(let i=0;i<n;i++){ if(prog[W[i].id]) cc=i+1; else break; }
+    let svghtml='<polyline points="'+allPts+'" fill="none" stroke="#20303f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(cc>0){ const k=Math.min(cc,n-1); const lit=xs.slice(0,k+1).map((x,i)=>x+","+ys[i]).join(" "); svghtml+='<polyline points="'+lit+'" fill="none" stroke="#0070d1" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'; }
+    svg.innerHTML=svghtml;
+    const wrap=$("#wNodes"); wrap.innerHTML=""; wrap.style.height=H+"px";
+    W.forEach((w,i)=>{ const cleared=!!prog[w.id]; const prevC=(i===0)||!!prog[W[i-1].id]; const playable=prevC; const isNext=playable&&!cleared;
+      const d=document.createElement("button"); d.className="tnode"+(cleared?" done":"")+(isNext?" next":"")+(playable?"":" locked");
+      d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
+      const inner=cleared?(w.final?"☠":(w.boss?"👑":"✓")):(w.final?"☠":(w.boss?"👑":(playable?w.id.split("-")[1]:"🔒")));
+      d.innerHTML='<span class="circ'+((w.boss||w.final)?" boss":"")+'">'+inner+'</span><span class="cap"><b>'+w.id+'</b></span>';
+      d.onclick=()=>{ if(!playable){ toast("이전 스테이지를 먼저 클리어하세요"); return; } location.href="battle.html?stage="+w.id+"&v=31"; };
+      wrap.appendChild(d); }); }
+  function showWorldReward(r){ const list=$("#wrList"); list.innerHTML=""; $("#wrLabel").textContent=r.first?"🎉 최초 클리어 보상":"반복 클리어 보상";
+    if(r.tickets){ list.innerHTML+='<div class="wrItem"><span>🎟 뽑기권</span><b>+'+r.tickets+'</b></div>'; }
+    const BK={gray:"회색 경험치책",green:"초록 경험치책",red:"빨강 경험치책",orange:"주황 경험치책"};
+    for(const c in (r.books||{})){ if(r.books[c]) list.innerHTML+='<div class="wrItem"><span>📗 '+BK[c]+'</span><b>+'+r.books[c]+'</b></div>'; }
+    if(!list.innerHTML) list.innerHTML='<div class="wrItem"><span>보상 없음</span></div>';
+    $("#worldRwPop").classList.add("on"); }
+  async function handleWorldClear(sid){ const s=await HK.Store.resume(); if(!s){ show("scrAuth"); return; } const r=await HK.Store.claimWorldStage(sid); renderWorld(); show("scrWorld"); if(r) showWorldReward(r); }
+  // ---------- pity select ----------
+  function openPitySelect(){ const s=HK.Store.cur; const g=$("#psGrid"); g.innerHTML="";
+    (HK.HEROES||[]).forEach(h=>{ const owned=s.heroes[h.id]&&s.heroes[h.id].owned; const d=document.createElement("button"); d.className="heroCell rar-"+(h.rarity||"R");
+      d.innerHTML='<div class="hcRar">'+(h.rarity||"R")+'</div><img src="'+h.sprite+'"><div class="hcNm">'+h.name+'</div><div class="hcLv">'+(owned?"보유 · 전용북+10":"신규 획득")+'</div>';
+      d.onclick=async()=>{ const r=await HK.Store.claimPity(h.id); if(r.err){ toast(r.err); return; } $("#pitySelect").classList.remove("on"); renderGacha(); showPulls([r.result]); };
+      g.appendChild(d); });
+    $("#pitySelect").classList.add("on"); }
   return { init, toast, openHome, renderHome };
 })();
 window.addEventListener("load", HK.UI.init);

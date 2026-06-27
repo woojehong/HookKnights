@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Montserrat:wght@300&family=IBM+Plex+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
-<link href="css/app.css?v=29" rel="stylesheet" />
+<link href="css/app.css?v=31" rel="stylesheet" />
 </head>
 <body>
 <div id="app">
@@ -50,6 +50,7 @@
     </div>
     <div class="menuList">
       <button class="mbtn primary" id="primaryBtn" data-menu="tutorial">🎓 튜토리얼</button>
+      <button class="mbtn row" data-menu="world"><span class="ic">🗺</span><span class="ml">월드 1</span><span class="ch">›</span></button>
       <button class="mbtn row" data-menu="gacha"><span class="ic">🎲</span><span class="ml">가챠</span><span class="ch">›</span></button>
       <button class="mbtn row" data-menu="heroes"><span class="ic">🦸</span><span class="ml">영웅 정보</span><span class="ch">›</span></button>
       <button class="mbtn row" data-menu="squad"><span class="ic">🛡</span><span class="ml">편성</span><span class="ch">›</span></button>
@@ -79,9 +80,9 @@
 
   <div id="scrGacha" class="screen">
     <div class="subHead"><button class="backBtn" data-back="home">‹ 홈</button><h2>가챠</h2><div class="tk" id="gcTickets">🎟 0</div></div>
-    <div class="gcBanner"><img src="assets/banner/banner1.png?v=29" alt="픽업 배너"><div class="gcBadge">PICK UP</div></div>
+    <div class="gcBanner"><img src="assets/banner/banner1.png?v=31" alt="픽업 배너"><div class="gcBadge">PICK UP</div></div>
     <div class="gcInfo">완전체 영웅 10% · 전용북 90% · 50회 천장 · 현재 R 7종</div>
-    <div class="gcTk">보유 뽑기권 <b id="gcTkBig">0</b></div>
+    <div class="gcTk">보유 뽑기권 <b id="gcTkBig">0</b> <button id="gcPityBtn" class="pityBtn" style="display:none;">🎁 천장 보상 <b id="gcPityN">0</b></button></div>
     <div class="gcPity">천장까지 <b id="gcPity">50</b>회</div>
     <div class="gcBtns">
       <button class="btn-primary" id="gc1">1회 뽑기 · 1장</button>
@@ -116,15 +117,32 @@
     </div>
   </div>
 
+  <div id="scrWorld" class="screen">
+    <div class="tutHead"><button class="tutBack" data-back="home">‹ 홈</button><h2>월드 1 · 멀록 해안</h2></div>
+    <div class="tutMapWrap"><svg id="wPath" xmlns="http://www.w3.org/2000/svg"></svg><div id="wNodes"></div></div>
+    <div class="tutFoot">최초 클리어 보상 + 반복 보상(경험치책) · 👑 보스 · ☠ 최종</div>
+  </div>
+
+  <div id="worldRwPop">
+    <div class="rwLabel" id="wrLabel">클리어 보상</div>
+    <div class="wrList" id="wrList"></div>
+    <button class="btn-primary" id="wrOk" style="min-width:170px;">확인</button>
+  </div>
+
+  <div id="pitySelect">
+    <div class="psHead"><div class="rwLabel">천장 보상 · 영웅 선택</div><button class="hdClose" id="psClose">✕</button></div>
+    <div class="heroGrid" id="psGrid"></div>
+  </div>
+
   <div id="tipbox"></div>
   <div id="toast"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script src="js/data.js?v=29"></script>
-<script src="js/firebase.js?v=29"></script>
-<script src="js/store.js?v=29"></script>
-<script src="js/ui.js?v=29"></script>
+<script src="js/data.js?v=31"></script>
+<script src="js/firebase.js?v=31"></script>
+<script src="js/store.js?v=31"></script>
+<script src="js/ui.js?v=31"></script>
 </body>
 </html>

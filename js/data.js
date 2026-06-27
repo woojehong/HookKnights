@@ -68,7 +68,7 @@ HK.BOOK_EXP = { gray:100, green:500, red:2500, orange:12500 };
 HK.BOOK_KR  = { gray:"회색", green:"초록", red:"빨강", orange:"주황" };
 
 /* 가챠 확률 (설계서 확정) */
-HK.GACHA = { rates:{ R:0.60, SR:0.30, SSR:0.10 }, fullHeroChance:0.10, dupBooks:10, pityCount:50 };
+HK.GACHA = { pullRates:{ R:0.80, SR:0.18, SSR:0.02 }, fullHeroChance:0.10, dupBooks:10, pityCount:50 };
 
 HK.TUTORIAL = [
  {id:"0-1",hero:"gubman",  title:"배치와 막기"},
@@ -80,3 +80,5 @@ HK.TUTORIAL = [
  {id:"0-7",hero:"hooje",   title:"졸업 전투"}
 ];
 HK.TUTORIAL_FINAL_TICKETS = 50;
+
+HK.WORLD1 = [{"id": "1-1", "boss": false, "final": false, "first": {"books": {"green": 2}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-2", "boss": false, "final": false, "first": {"books": {"green": 3}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-3", "boss": false, "final": false, "first": {"books": {"green": 3}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-4", "boss": false, "final": false, "first": {"books": {"green": 4}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-5", "boss": true, "final": false, "first": {"books": {"green": 8, "red": 1}, "tickets": 5}, "repeat": {"books": {"green": 1}}}, {"id": "1-6", "boss": false, "final": false, "first": {"books": {"green": 5}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-7", "boss": false, "final": false, "first": {"books": {"green": 5}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-8", "boss": false, "final": false, "first": {"books": {"green": 6}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-9", "boss": false, "final": false, "first": {"books": {"green": 6}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-10", "boss": true, "final": false, "first": {"books": {"green": 8, "red": 1}, "tickets": 5}, "repeat": {"books": {"green": 1}}}, {"id": "1-11", "boss": false, "final": false, "first": {"books": {"green": 7}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-12", "boss": false, "final": false, "first": {"books": {"green": 8}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-13", "boss": false, "final": false, "first": {"books": {"green": 8}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-14", "boss": false, "final": false, "first": {"books": {"green": 9}, "tickets": 1}, "repeat": {"books": {"gray": 3}}}, {"id": "1-15", "boss": false, "final": true, "first": {"books": {"red": 3, "orange": 1}, "tickets": 10}, "repeat": {"books": {"green": 2}}}];
