@@ -50,7 +50,7 @@ HK.UI = (function(){
     if(pb){ const st=(HK.TUTORIAL||[])[s.tutorial_stage||0]; pb.textContent=(s.tutorial_done===false&&st)?("🎓 튜토리얼: "+st.title):"🎓 튜토리얼"; pb.dataset.menu="tutorial"; }
   }
   function menu(act){
-    if(act==="battle"){ location.href="battle.html?v=31"; }
+    if(act==="battle"){ location.href="battle.html?v=33"; }
     else if(act==="tutorial"){ openTut(); }
     else if(act==="gacha"){ openGacha(); }
     else if(act==="heroes"){ openHeroes(); }
@@ -112,7 +112,7 @@ HK.UI = (function(){
       d.className="tnode"+(done?" done":"")+(isNext?" next":"");
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       d.innerHTML='<span class="circ">'+(done?"✓":t.id.split("-")[1])+'</span><span class="cap"><b>'+t.id+' · '+t.title+'</b></span>';
-      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=31"; };
+      d.onclick=()=>{ location.href="battle.html?tut="+t.id+"&v=33"; };
       wrap.appendChild(d);
     });
   }
@@ -194,7 +194,8 @@ HK.UI = (function(){
     $("#hdMeta").innerHTML=(HK.CLASS_KR[h.cls]||h.cls)+" · "+h.atkType+" · 코스트 "+h.cost+(owned?(' · 전투력 <b style="color:#ffd36b">⚔'+heroPower(h,hs)+'</b>'):"");
     const lv=owned?(hs.level||1):1, aLv=owned?(hs.active_lv||1):1; const st=heroScaled(h,lv);
     $("#hdStats").innerHTML=statRow("HP",st.hp)+statRow("공격",st.atk)+statRow("방어",st.armor)+statRow("마저",st.mr)+statRow("사거리",h.range)+statRow("공속",h.atkInt+"s");
-    $("#hdSkills").innerHTML='<div class="hdSk" id="hdSkA"><span class="t">액티브</span>'+((h.active&&h.active.name)||"-")+' <i>Lv '+aLv+'/30</i> <span class="qm">?</span></div>'+
+    const _N=Math.floor(h.range+0.4),_lat=_N; let _fm='<div class="fanMini" style="grid-template-columns:repeat('+(2*_lat+1)+',10px)">'; for(let _f=_N;_f>=1;_f--){for(let _d=-_lat;_d<=_lat;_d++){_fm+='<i class="'+(Math.abs(_d)<=_f?"on":"")+'"></i>';}} for(let _d=-_lat;_d<=_lat;_d++){_fm+='<i class="'+(_d===0?"u":"")+'"></i>';} _fm+='</div>'; const _MEL={Tank:1,Melee:1,Vanguard:1}; const _blk=_MEL[h.cls]?(' · 블록 <b>'+h.block+'명</b>'):""; const _atk='<div class="hdAtk"><div class="hdAtkL">기본공격 <b>전방 '+_N+'칸</b> 부채꼴'+_blk+'</div>'+_fm+'</div>';
+    $("#hdSkills").innerHTML=_atk+'<div class="hdSk" id="hdSkA"><span class="t">액티브</span>'+((h.active&&h.active.name)||"-")+' <i>Lv '+aLv+'/30</i> <span class="qm">?</span></div>'+
       '<div class="hdSk" id="hdSkP"><span class="t">패시브</span>'+((h.passive&&h.passive.name)||"-")+' <span class="qm">?</span></div>';
     bindTip($("#hdSkA"),(h.active&&h.active.desc)||"설명 없음"); bindTip($("#hdSkP"),(h.passive&&h.passive.desc)||"설명 없음");
     const need=HK.UNLOCK_BOOKS||10; const books=s.inventory.hero_books[hdHero]||0;
@@ -233,7 +234,7 @@ HK.UI = (function(){
       d.style.left=xs[i]+"%"; d.style.top=ys[i]+"px";
       const inner=cleared?(w.final?"☠":(w.boss?"👑":"✓")):(w.final?"☠":(w.boss?"👑":(playable?w.id.split("-")[1]:"🔒")));
       d.innerHTML='<span class="circ'+((w.boss||w.final)?" boss":"")+'">'+inner+'</span><span class="cap"><b>'+w.id+'</b></span>';
-      d.onclick=()=>{ if(!playable){ toast("이전 스테이지를 먼저 클리어하세요"); return; } location.href="battle.html?stage="+w.id+"&v=31"; };
+      d.onclick=()=>{ if(!playable){ toast("이전 스테이지를 먼저 클리어하세요"); return; } location.href="battle.html?stage="+w.id+"&v=33"; };
       wrap.appendChild(d); }); }
   function showWorldReward(r){ const list=$("#wrList"); list.innerHTML=""; $("#wrLabel").textContent=r.first?"🎉 최초 클리어 보상":"반복 클리어 보상";
     if(r.tickets){ list.innerHTML+='<div class="wrItem"><span>🎟 뽑기권</span><b>+'+r.tickets+'</b></div>'; }
